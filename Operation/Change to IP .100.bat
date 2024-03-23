@@ -1,0 +1,1 @@
+netsh interface ipv4 set address name="Ethernet 2" static 192.168.168.100 255.255.255.0
