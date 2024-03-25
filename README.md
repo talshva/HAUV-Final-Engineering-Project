@@ -44,8 +44,18 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 - **Guidance Node**: Processes sensor data to assist in object detection and mapping.
 - **Camera Node**: Manages the camera system for real-time video feedback.
 
-### Typical Commands for Troubleshooting
+### Using the arduino CLI to flash the esp32:
+1. Go to main sketch directory:
+`cd ~/rov_ws/src/esp_sketches/rov_esp_main`
+2. Edit the desired code using nano or VScode IDE.
+3. Compile the code:
+`arduino-cli compile --fqbn esp32:esp32:esp32da rov_esp_main.ino`
+4. Flash the code onto the esp32:
+`arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32da rov_main`
 
+
+### Typical Commands for Troubleshooting
+1. UP:
 ```bash
 ros2 topic list
 ros2 topic echo /name_of_topic
@@ -53,7 +63,11 @@ journalctl -u ros2_service_name
 # Remember to source your ROS2 workspace
 source ~/ros2_ws/install/setup.bash
 ```
+2. ESP:
+monitoring the serial messages:
+`screen /dev/ttyUSB0 115200`
 
+   
 ## Common Issues
 
 - **VS Code Connection Issues**: Solutions for `XHR Failed` errors and reestablishing a stable connection.
