@@ -51,7 +51,7 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 3. Compile the code:
 `arduino-cli compile --fqbn esp32:esp32:esp32da rov_esp_main.ino`
 4. Flash the code onto the esp32:
-`arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32da rov_main`
+`arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32da rov_esp_main.ino`
 
 
 ### Typical Commands for Troubleshooting
