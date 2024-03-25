@@ -44,6 +44,9 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 - **Guidance Node**: Processes sensor data to assist in object detection and mapping.
 - **Camera Node**: Manages the camera system for real-time video feedback.
 
+### Running the agent:
+`ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
+
 ### Using the arduino CLI to flash the esp32:
 1. Go to main sketch directory:
 `cd ~/rov_ws/src/esp_sketches/rov_esp_main`
