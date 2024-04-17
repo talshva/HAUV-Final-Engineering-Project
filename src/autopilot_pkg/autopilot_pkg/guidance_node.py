@@ -3,11 +3,6 @@ from rclpy.node import Node
 from std_msgs.msg import Int32
 from geometry_msgs.msg import Twist, Vector3
 import math
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import numpy as np
-from remote_plot import plt
-plt.plot([1, 2, 3], [4, 5, 6])
 
 class GuidanceNode(Node):
     def __init__(self):
@@ -19,36 +14,21 @@ class GuidanceNode(Node):
         self.subscription = self.create_subscription(Twist,'/esp32/gyro_accel_data',self.gyro_accel_callback,10)
         #Timers:
         self.motor_light_pub_timer = self.create_timer(0.02, self.motor_light_publisher) # Timer period for 50Hz frequency
-        # self.sine_test_timer = self.create_timer(0.02, self.sine_test) # Timer period for 50Hz frequency
+        self.sine_test_timer = self.create_timer(0.02, self.sine_test) # Timer period for 50Hz frequency
 
         # Variables
         self.start_time = self.get_clock().now()
-        #self.gyro_accel_values = {"linear_x": 0.0, "linear_y": 0.0, "linear_z": 0.0, "angular_x": 0.0, "angular_y": 0.0, "angular_z": 0.0}
+        self.gyro_accel_values = {"linear_x": 0.0, "linear_y": 0.0, "linear_z": 0.0, "angular_x": 0.0, "angular_y": 0.0, "angular_z": 0.0}
         self.motor_velocity = {"motor1": 1500, "motor2": 1500, "motor3": 1500, "motor4": 1500, "motor5": 1500, "cam_servo": 90}
         self.light_intensity = {"light1": 1500, "light2": 1500, "light_couple": 1500}
 
-
-        self.fig, self.axs = plt.subplots(2, 3)
-        self.x_data = np.linspace(0, 49, 50)
-        self.y_data = np.zeros((6, 50))
-        self.lines = []
-        for i, ax in enumerate(self.axs.flatten()):
-            line, = ax.plot(self.x_data, self.y_data[i], label=['X', 'Y', 'Z', 'X', 'Y', 'Z'][i])
-            self.lines.append(line)
-            ax.set_ylim(-10, 10)
-            ax.set_title(['Linear X', 'Linear Y', 'Linear Z', 'Angular X', 'Angular Y', 'Angular Z'][i])
-        self.fig.tight_layout()
-        self.fig.show()
-        self.ani = FuncAnimation(self.fig, self.update_plot, interval=100)
-
-
-
     def gyro_accel_callback(self, msg):
-       # Roll data arrays to the right
-        self.y_data = np.roll(self.y_data, 1, axis=1)
-        # Update new values
-        self.y_data[:, 0] = [msg.linear.x, msg.linear.y, msg.linear.z, msg.angular.x, msg.angular.y, msg.angular.z]
-
+        self.gyro_accel_values["linear_x"] = msg.linear.x
+        self.gyro_accel_values["linear_y"] = msg.linear.y
+        self.gyro_accel_values["linear_z"] = msg.linear.z
+        self.gyro_accel_values["angular_x"] = msg.angular.x
+        self.gyro_accel_values["angular_y"] = msg.angular.y
+        self.gyro_accel_values["angular_z"] = msg.angular.z
 
     def motor_light_publisher(self):
         msg = Twist()
@@ -99,7 +79,7 @@ class GuidanceNode(Node):
       # Publish sine wave to lights
         light_sine_value = math.sin(light_omega * elapsed_time)  
         self.light_intensity["light1"] = int((light_sine_value * 400) + 1500)  # Scale sine wave for lights
-        self.light_intensity["light2"] = int(-(light_sine_value * 400) + 1500)  # Scale sine wave for lights
+        self.light_intensity["light_couple"] = int(-(light_sine_value * 400) + 1500)  # Scale sine wave for lights
  
 
 
