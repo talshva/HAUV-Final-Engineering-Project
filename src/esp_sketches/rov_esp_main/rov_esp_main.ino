@@ -44,13 +44,6 @@ geometry_msgs__msg__Twist motors_msg;
 rcl_subscription_t lights_sub;
 geometry_msgs__msg__Vector3 lights_msg;
 
-// rcl_subscription_t light_sub, light_couple_sub;
-// std_msgs__msg__Int32 light_msg, light_couple_msg;
-
-// Subscriber and message for camera servo
-rcl_subscription_t cam_servo_sub;
-std_msgs__msg__Int32 cam_servo_msg;
-
 rclc_executor_t executor;
 rclc_support_t support;
 rcl_allocator_t allocator;
