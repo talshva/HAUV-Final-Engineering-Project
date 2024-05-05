@@ -13,7 +13,7 @@ class GuidanceNode(Node):
         #Subscribers:
         self.subscription = self.create_subscription(Twist,'/esp32/gyro_accel_data',self.gyro_accel_callback,10)
         #Timers:
-        self.motor_light_pub_timer = self.create_timer(0.02, self.motor_light_publisher) # Timer period for 50Hz frequency
+        self.motor_light_pub_timer = self.create_timer(0.1, self.motor_light_publisher) # Timer period for 10Hz frequency
         self.sine_test_timer = self.create_timer(0.02, self.sine_test) # Timer period for 50Hz frequency
 
         # Variables
