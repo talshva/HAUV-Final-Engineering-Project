@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'guidance_node = autopilot_pkg.guidance_node:main'
+            'guidance_node = autopilot_pkg.guidance_node:main',
+            'imu_node = autopilot_pkg.imu_node:main'
         ],
     },
 )
