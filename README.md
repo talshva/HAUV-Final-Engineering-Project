@@ -47,6 +47,14 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 ### Running the agent:
 `ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
 
+### Running rviz simulation:
+1. Running agent.
+2. running imu_node using `ros2 run autopilot_pkg imu_node`
+3. running joystick node using `ros2 run joy joy_node`
+4. running guidance node using `ros2 run autopilot_pkg guidance_node`
+5. running rviz using `rviz2`
+
+
 ### Using the arduino CLI to flash the esp32:
 1. Go to main sketch directory:
 `cd ~/rov_ws/src/esp_sketches/rov_esp_main`

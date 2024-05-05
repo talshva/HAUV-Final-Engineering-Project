@@ -1,6 +1,25 @@
 <?xml version="1.0"?>
 <robot name="rov">
+
+  <!-- Base Link -->
   <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.5 0.5 0.3"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.5 0.5 0.3"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- IMU Link -->
+  <link name="imu_link">
     <visual>
       <geometry>
         <box size="0.1 0.1 0.1"/>
@@ -9,20 +28,248 @@
         <color rgba="0.0 1.0 0.0 1.0"/>
       </material>
     </visual>
-  </link>
-  <link name="imu_link">
-    <visual>
+    <collision>
       <geometry>
-        <cylinder radius="0.02" length="0.1"/>
+        <box size="0.1 0.1 0.1"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0.0 0.0 1.0 1.0"/>
-      </material>
-    </visual>
+    </collision>
   </link>
+
+  <!-- IMU Joint -->
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0.0 0.0 0.05"/>
+    <origin xyz="0.0 0.0 0.15"/>
   </joint>
+
+  <!-- Horizontal Thrusters -->
+  <link name="thruster_1">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="thruster_1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="thruster_1"/>
+    <origin xyz="-0.3 0.3 0"/>
+  </joint>
+
+  <link name="thruster_2">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="thruster_2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="thruster_2"/>
+    <origin xyz="0.3 0.3 0"/>
+  </joint>
+
+  <link name="thruster_3">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="thruster_3_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="thruster_3"/>
+    <origin xyz="-0.3 -0.3 0"/>
+  </joint>
+
+  <link name="thruster_4">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="thruster_4_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="thruster_4"/>
+    <origin xyz="0.3 -0.3 0"/>
+  </joint>
+
+  <!-- Vertical Thruster -->
+  <link name="thruster_vertical">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="thruster_vertical_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="thruster_vertical"/>
+    <origin xyz="1.0 1.0 1.2"/>
+  </joint>
+
+  <!-- Single Light 1 -->
+  <link name="light_1">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="yellow">
+        <color rgba="1.0 1.0 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="light_1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="light_1"/>
+    <origin xyz="-0.25 0.25 0.2"/>
+  </joint>
+
+  <!-- Single Light 2 -->
+  <link name="light_2">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="yellow">
+        <color rgba="1.0 1.0 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="light_2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="light_2"/>
+    <origin xyz="0.25 0.25 0.2"/>
+  </joint>
+
+  <!-- Twin Lights -->
+  <link name="light_twin">
+    <visual>
+      <geometry>
+        <box size="0.1 0.05 0.05"/>
+      </geometry>
+      <material name="yellow">
+        <color rgba="1.0 1.0 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.05 0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="light_twin_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="light_twin"/>
+    <origin xyz="0.0 0.25 0.2"/>
+  </joint>
+
+  <!-- Pan-Tilt Camera -->
+  <link name="camera_base">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1.0 0.0 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camera_base_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="camera_base"/>
+    <origin xyz="0.0 0.3 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="1" velocity="1"/>
+  </joint>
+
+  <link name="camera">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1.0 0.0 0.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.1" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camera_joint" type="revolute">
+    <parent link="camera_base"/>
+    <child link="camera"/>
+    <origin xyz="0.0 0.0 0.05"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="1" velocity="1"/>
+  </joint>
+
 </robot>
