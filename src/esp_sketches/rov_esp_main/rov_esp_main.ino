@@ -12,6 +12,8 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <Adafruit_MPU6050.h>
+#include "KellerLD.h"
+
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 #define RCCHECK(fn) ((fn) == RCL_RET_OK)
@@ -22,6 +24,7 @@ Servo esc1, esc2, esc3, esc4, esc5;
 Servo light1, light2, light_couple;
 Servo cam_servo;
 Adafruit_MPU6050 mpu;
+KellerLD bar100;
 
 #define ESC_MIN 1100
 #define ESC_MAX 1900
@@ -32,14 +35,15 @@ Adafruit_MPU6050 mpu;
 
 //Adafruit_BME280 bme; // I2C
 
-int esc_pins[] = {5, 19, 25, 27, 29};
+int esc_pins[] = {19, 5, 16, 4, 2};
 int light_pins[] = {15, 30, 17}; // light1, light2, couple
 int cam_servo_pin = 18;
 
 //========================== Publishers definitions =========================================
 rcl_publisher_t gyro_accel_pub;
 geometry_msgs__msg__Twist gyro_accel_msg;
-
+rcl_publisher_t bar100_pub;
+geometry_msgs__msg__Twist bar100_msg;
 //========================== Subscribers definitions ========================================
 rcl_subscription_t motors_sub;
 rcl_subscription_t lights_sub;
@@ -103,6 +107,7 @@ void subscription_callback_lights(const void *msgin) {
 void gyro_accel_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
     /* Get new sensor events with the readings */
     sensors_event_t a, g, temp;
+    //bar100.read();
     mpu.getEvent(&a, &g, &temp);
     RCLC_UNUSED(last_call_time);
     if (timer != NULL && connected) {
@@ -115,6 +120,16 @@ void gyro_accel_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
         if (!RCCHECK(rcl_publish(&gyro_accel_pub, &gyro_accel_msg, NULL))) {
             connected = false; // Set connected to false if publish fails
         }
+        
+        // bar100_msg.linear.x = static_cast<double>(bar100.pressure()); //[mbar]
+        // bar100_msg.linear.y = static_cast<double>(bar100.temperature()); //[degC]
+        // bar100_msg.linear.z = static_cast<double>(bar100.depth());  //[m]
+        // bar100_msg.angular.x = static_cast<double>(bar100.altitude()); // [m] above mean sea level
+        // bar100_msg.angular.y = 0.0;
+        // bar100_msg.angular.z = 0.0;
+        // if (!RCCHECK(rcl_publish(&bar100_pub, &bar100_msg, NULL))) {
+        //     connected = false; // Set connected to false if publish fails
+        // }
     }
 }
 
@@ -136,8 +151,9 @@ bool setup_node_and_entities() {
     if (!RCCHECK(rclc_support_init(&support, 0, NULL, &allocator))) return false;
     if (!RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support))) return false;
     if (!RCCHECK(rclc_publisher_init_default(&gyro_accel_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/gyro_accel_data"))) return false;
-    if (!RCCHECK(rclc_timer_init_default(&timer, &support, RCL_MS_TO_NS(20), gyro_accel_timer_callback))) return false;
-    if (!RCCHECK(rclc_executor_init(&executor, &support.context, 4, &allocator))) return false;
+    if (!RCCHECK(rclc_publisher_init_default(&bar100_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bar100_data"))) return false;
+    if (!RCCHECK(rclc_timer_init_default(&timer, &support, RCL_MS_TO_NS(50), gyro_accel_timer_callback))) return false;
+    if (!RCCHECK(rclc_executor_init(&executor, &support.context, 5, &allocator))) return false;
     if (!RCCHECK(rclc_executor_add_timer(&executor, &timer))) return false;
     // Motor Data Subscriber
     RCCHECK(rclc_subscription_init_default(
@@ -164,19 +180,22 @@ void setup() {
     // Attach motor controllers:
     esc1.attach(esc_pins[0]);
     esc2.attach(esc_pins[1]);
-    //esc3.attach(esc_pins[2]);
-    //esc4 attach(esc_pins[3]);
-    //esc5 attach(esc_pins[4]);
+    esc3.attach(esc_pins[2]);
+    esc4.attach(esc_pins[3]);
+    esc5.attach(esc_pins[4]);
     // Attach lights:
-    light1.attach(light_pins[0]);
-    light_couple.attach(light_pins[2]);
+    //light1.attach(light_pins[0]);
+    //light_couple.attach(light_pins[2]);
     // Attach Pan-tilt servo:
     cam_servo.attach(cam_servo_pin);
     // Initial states
     esc1.writeMicroseconds(1500);
     esc2.writeMicroseconds(1500);
-    light1.writeMicroseconds(1100);
-    light_couple.writeMicroseconds(1100);
+    esc3.writeMicroseconds(1500);
+    esc4.writeMicroseconds(1500);
+    esc5.writeMicroseconds(1500);
+    //light1.writeMicroseconds(1100);
+    //light_couple.writeMicroseconds(1100);
     cam_servo.write(90);
     delay(1000);
     cam_servo.write(120);
@@ -189,6 +208,10 @@ void setup() {
     //if (!bme.begin(0x76)) { // Initialize BME280 sensor
     //  Serial.println("Could not find a valid BME280 sensor, check wiring!");
     //}
+
+    //bar100.init();
+    //bar100.setFluidDensity(1029); // kg/m^3 (seawater, 997 for freshwater)
+
     if (!mpu.begin()) {
         Serial.println("Failed to find MPU6050 chip");
     } else {

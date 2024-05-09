@@ -14,7 +14,7 @@ class GuidanceNode(Node):
         self.subscription = self.create_subscription(Twist, '/esp32/gyro_accel_data', self.gyro_accel_callback, 10)
         self.joy_subscription = self.create_subscription(Joy, '/joy', self.joy_callback, 10)
         # Timers:
-        self.motor_light_pub_timer = self.create_timer(0.1, self.motor_light_publisher)
+        self.motor_light_pub_timer = self.create_timer(0.05, self.motor_light_publisher) # 20hz
 
         # Variables
         self.start_time = self.get_clock().now()
