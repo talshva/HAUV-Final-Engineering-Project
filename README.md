@@ -76,8 +76,9 @@ source ~/ros2_ws/install/setup.bash
 ```
 2. ESP:
 monitoring the serial messages:
-`screen /dev/ttyUSB0 115200`
+`screen /dev/ttyUSB1 115200`
 if screen isn't terminating, kill manually by:
+`ctrl+A, then press K`, or:
 `screen -ls` (to get the session id)
 `screen -XS <session-id> quit`
    
