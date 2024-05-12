@@ -1,5 +1,6 @@
 #include <micro_ros_arduino.h>
 #include <ESP32Servo.h>
+#include <HardwareSerial.h>
 #include <stdio.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
@@ -18,14 +19,8 @@
 #define SEALEVELPRESSURE_HPA (1013.25)
 #define RCCHECK(fn) ((fn) == RCL_RET_OK)
 #define LED_PIN_CONNECTED 2 // LED to indicate connection status
-
-//========================== Pinout =========================================================
-Servo esc1, esc2, esc3, esc4, esc5;
-Servo light1, light2, light_couple;
-Servo cam_servo;
-Adafruit_MPU6050 mpu;
-KellerLD bar100;
-
+#define DEBUG_TX_PIN 17 
+#define DEBUG_RX_PIN 16 
 #define ESC_MIN 1100
 #define ESC_MAX 1900
 #define LIGHT_MIN 1100
@@ -33,11 +28,20 @@ KellerLD bar100;
 #define CAM_SERVO_MIN 0
 #define CAM_SERVO_MAX 180
 
+//========================== Pinout =========================================================
+Servo esc1, esc2, esc3, esc4, esc5;
+Servo light1, light2, light_couple;
+Servo cam_servo;
+Adafruit_MPU6050 mpu;
+KellerLD bar100;
+HardwareSerial MainSerial(0);  // Declaring a Serial object on UART0
+HardwareSerial DebugSerial(1); // Use UART1 for debugging
+
 //Adafruit_BME280 bme; // I2C
 
-int esc_pins[] = {19, 5, 16, 4, 2};
-int light_pins[] = {15, 30, 17}; // light1, light2, couple
-int cam_servo_pin = 18;
+int esc_pins[] = {32, 33, 25, 26, 27};
+int light_pins[] = {14, 12, 13}; // light1, light2, couple
+int cam_servo_pin = 19;
 
 //========================== Publishers definitions =========================================
 rcl_publisher_t gyro_accel_pub;
@@ -99,6 +103,9 @@ void subscription_callback_lights(const void *msgin) {
     if (light1_val >= LIGHT_MIN && light1_val <= LIGHT_MAX) {
         light1.writeMicroseconds(light1_val); // Send PWM signal to lights.
     }
+    if (light2_val >= LIGHT_MIN && light2_val <= LIGHT_MAX) {
+        light2.writeMicroseconds(light2_val); // Send PWM signal to lights.
+    }
     if (light_couple_val >= LIGHT_MIN && light_couple_val <= LIGHT_MAX) {
         light_couple.writeMicroseconds(light_couple_val); // Send PWM signal to lights.
     }
@@ -107,7 +114,7 @@ void subscription_callback_lights(const void *msgin) {
 void gyro_accel_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
     /* Get new sensor events with the readings */
     sensors_event_t a, g, temp;
-    //bar100.read();
+    bar100.read();
     mpu.getEvent(&a, &g, &temp);
     RCLC_UNUSED(last_call_time);
     if (timer != NULL && connected) {
@@ -120,29 +127,78 @@ void gyro_accel_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
         if (!RCCHECK(rcl_publish(&gyro_accel_pub, &gyro_accel_msg, NULL))) {
             connected = false; // Set connected to false if publish fails
         }
-        
-        // bar100_msg.linear.x = static_cast<double>(bar100.pressure()); //[mbar]
-        // bar100_msg.linear.y = static_cast<double>(bar100.temperature()); //[degC]
-        // bar100_msg.linear.z = static_cast<double>(bar100.depth());  //[m]
-        // bar100_msg.angular.x = static_cast<double>(bar100.altitude()); // [m] above mean sea level
-        // bar100_msg.angular.y = 0.0;
-        // bar100_msg.angular.z = 0.0;
-        // if (!RCCHECK(rcl_publish(&bar100_pub, &bar100_msg, NULL))) {
-        //     connected = false; // Set connected to false if publish fails
-        // }
+        // DebugSerial.println(bar100.pressure());
+        // DebugSerial.println(bar100.depth());
+        // DebugSerial.println(bar100.altitude());
+
+        bar100_msg.linear.x = static_cast<double>(bar100.pressure()); //[mbar]
+        bar100_msg.linear.y = static_cast<double>(bar100.temperature()); //[degC]
+        bar100_msg.linear.z = static_cast<double>(bar100.depth());  //[m]
+        bar100_msg.angular.x = static_cast<double>(bar100.altitude()); // [m] above mean sea level
+        bar100_msg.angular.y = 0.0;
+        bar100_msg.angular.z = 0.0;
+        if (!RCCHECK(rcl_publish(&bar100_pub, &bar100_msg, NULL))) {
+            connected = false; // Set connected to false if publish fails
+        }
     }
 }
 
-void attempt_reconnection() {
-    while (!connected) {
-        digitalWrite(LED_PIN_CONNECTED, HIGH); delay(500);
-        digitalWrite(LED_PIN_CONNECTED, LOW); delay(500);
-        // Try to setup node and entities for reconnection
-        connected = setup_node_and_entities();
+// void attempt_reconnection() {
+//     while (!connected) {
+//         DebugSerial.println("Retrying Connection...");
+//         digitalWrite(LED_PIN_CONNECTED, HIGH); delay(500);
+//         digitalWrite(LED_PIN_CONNECTED, LOW); delay(500);
+//         // Try to setup node and entities for reconnection
+//         connected = setup_node_and_entities();
+//     }
+//     DebugSerial.println("Connected!");
+
+//     // Once connected, keep the LED on
+//     digitalWrite(LED_PIN_CONNECTED, HIGH);
+// }
+
+bool reconnect_to_agent() {
+    cleanup_ros_entities();
+    if (!RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support))) {
+        DebugSerial.println("Failed to reinitialize node.");
+        return false;
     }
-    // Once connected, keep the LED on
-    digitalWrite(LED_PIN_CONNECTED, HIGH);
+    // Reinitialize node
+    if (!RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support))) {
+        DebugSerial.println("Failed to reinitialize node.");
+        return false;
+    }
+    digitalWrite(LED_PIN_CONNECTED, HIGH); delay(500);
+    digitalWrite(LED_PIN_CONNECTED, LOW); delay(500);
+    // Re-setup publishers, subscribers, and other ROS entities
+    // You might need to ensure old entities are properly finalized if applicable
+    DebugSerial.println("Reconnection attempt finished.");
+    return setup_node_and_entities();;
 }
+
+
+bool check_connection() {
+    // Example check, adapt based on actual use case
+    rcl_ret_t ret = rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+    if (ret != RCL_RET_OK) {
+        DebugSerial.println("Connection check failed.");
+        return false;
+    }
+    return true;
+}
+
+void cleanup_ros_entities() {
+    // Properly finalize all entities
+    rcl_publisher_fini(&gyro_accel_pub, &node);
+    rcl_publisher_fini(&bar100_pub, &node);
+    rcl_subscription_fini(&motors_sub, &node);
+    rcl_subscription_fini(&lights_sub, &node);
+    rclc_executor_fini(&executor);
+    rclc_support_fini(&support);
+    rcl_node_fini(&node);
+}
+
+
 
 //========================== ROS Initialization =============================================
 bool setup_node_and_entities() {
@@ -184,8 +240,9 @@ void setup() {
     esc4.attach(esc_pins[3]);
     esc5.attach(esc_pins[4]);
     // Attach lights:
-    //light1.attach(light_pins[0]);
-    //light_couple.attach(light_pins[2]);
+    light1.attach(light_pins[0]);
+    light2.attach(light_pins[1]);
+    light_couple.attach(light_pins[2]);
     // Attach Pan-tilt servo:
     cam_servo.attach(cam_servo_pin);
     // Initial states
@@ -194,41 +251,55 @@ void setup() {
     esc3.writeMicroseconds(1500);
     esc4.writeMicroseconds(1500);
     esc5.writeMicroseconds(1500);
-    //light1.writeMicroseconds(1100);
-    //light_couple.writeMicroseconds(1100);
+    light1.writeMicroseconds(1100);
+    light2.writeMicroseconds(1100);
+    light_couple.writeMicroseconds(1100);
     cam_servo.write(90);
     delay(1000);
     cam_servo.write(120);
-    Serial.begin(115200);
-    delay(3000); // Delay to allow the ESC to recognize the stopped signal
-    connected = setup_node_and_entities();
-    if (!connected) {
-        attempt_reconnection();  // Attempt reconnection here, similar to your previous logic
-    }
+
+    // Setup debugging serial
+    DebugSerial.begin(115200, SERIAL_8N1, DEBUG_RX_PIN, DEBUG_TX_PIN);
+    // Setup main Agent Serial
+    MainSerial.begin(115200);
+
     //if (!bme.begin(0x76)) { // Initialize BME280 sensor
     //  Serial.println("Could not find a valid BME280 sensor, check wiring!");
     //}
 
-    //bar100.init();
-    //bar100.setFluidDensity(1029); // kg/m^3 (seawater, 997 for freshwater)
+    bar100.init();
+    bar100.setFluidDensity(997); // kg/m^3 (freshwater, 1029 for seawater)
+
+    if (bar100.isInitialized()) {
+        DebugSerial.println("Bar100 is connected.");
+    } else {
+        DebugSerial.println("Bar100 is not connected.");
+    }
 
     if (!mpu.begin()) {
-        Serial.println("Failed to find MPU6050 chip");
+        DebugSerial.println("Failed to find MPU6050 chip");
     } else {
         mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
         mpu.setGyroRange(MPU6050_RANGE_500_DEG);
         mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
     }
+
+    connected = setup_node_and_entities();
+
 }
 
 //========================== Main Loop ======================================================
+
 void loop() {
-    if (connected) {
-        if (!RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)))) {
-            connected = false; // If spin_some fails, connection is considered lost
+    if (!connected || !check_connection()) {
+        DebugSerial.println("Connection lost, attempting to reconnect...");
+        connected = reconnect_to_agent();  // Attempt to reconnect
+        if (connected) {
+            DebugSerial.println("Reconnected successfully.");
+        } else {
+            DebugSerial.println("Reconnection failed.");
         }
-    } else {
-        attempt_reconnection();
     }
+
     delay(10); // Small delay to avoid running the loop too fast
 }
