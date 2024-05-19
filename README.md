@@ -70,7 +70,14 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 ```bash
 ros2 topic list
 ros2 topic echo /name_of_topic
-journalctl -u ros2_service_name
+
+sudo systemctl daemon-reload
+sudo systemctl start ros2_launch.service
+sudo systemctl stop ros2_launch.service
+sudo systemctl restart ros2_launch.service
+sudo systemctl status ros2_launch.service
+sudo journalctl -u ros2_launch.service -f
+
 # Remember to source your ROS2 workspace
 source ~/ros2_ws/install/setup.bash
 ```

@@ -64,7 +64,6 @@ bool connected = false;
 
 //========================== Subscribers Callbacks ==========================================
 void subscription_callback_motors(const void *msgin) {
-    //Serial.println("In motor callback");
     const geometry_msgs__msg__Twist *msg = (const geometry_msgs__msg__Twist *)msgin;
     int motor1_val = static_cast<int>(msg->linear.x);
     int motor2_val = static_cast<int>(msg->linear.y);
@@ -94,7 +93,6 @@ void subscription_callback_motors(const void *msgin) {
 }
 
 void subscription_callback_lights(const void *msgin) {
-    //Serial.println("In lights callback");
     const geometry_msgs__msg__Vector3 *msg = (const geometry_msgs__msg__Vector3 *)msgin;
     int light1_val = static_cast<int>(msg->x);
     int light2_val = static_cast<int>(msg->y);
@@ -127,10 +125,6 @@ void gyro_accel_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
         if (!RCCHECK(rcl_publish(&gyro_accel_pub, &gyro_accel_msg, NULL))) {
             connected = false; // Set connected to false if publish fails
         }
-        // DebugSerial.println(bar100.pressure());
-        // DebugSerial.println(bar100.depth());
-        // DebugSerial.println(bar100.altitude());
-
         bar100_msg.linear.x = static_cast<double>(bar100.pressure()); //[mbar]
         bar100_msg.linear.y = static_cast<double>(bar100.temperature()); //[degC]
         bar100_msg.linear.z = static_cast<double>(bar100.depth());  //[m]
@@ -143,42 +137,61 @@ void gyro_accel_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
     }
 }
 
-// void attempt_reconnection() {
-//     while (!connected) {
-//         DebugSerial.println("Retrying Connection...");
-//         digitalWrite(LED_PIN_CONNECTED, HIGH); delay(500);
-//         digitalWrite(LED_PIN_CONNECTED, LOW); delay(500);
-//         // Try to setup node and entities for reconnection
-//         connected = setup_node_and_entities();
-//     }
-//     DebugSerial.println("Connected!");
-
-//     // Once connected, keep the LED on
-//     digitalWrite(LED_PIN_CONNECTED, HIGH);
-// }
-
 bool reconnect_to_agent() {
     cleanup_ros_entities();
+    delay(1000); // Wait a bit before trying to reconnect
+    set_microros_transports();
+    allocator = rcl_get_default_allocator();
+    if (!RCCHECK(rclc_support_init(&support, 0, NULL, &allocator))) {
+        DebugSerial.println("Failed to reinitialize support.");
+        return false;
+    }
     if (!RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support))) {
         DebugSerial.println("Failed to reinitialize node.");
         return false;
     }
-    // Reinitialize node
-    if (!RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support))) {
-        DebugSerial.println("Failed to reinitialize node.");
+    if (!RCCHECK(rclc_publisher_init_default(&gyro_accel_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/gyro_accel_data"))) {
+        DebugSerial.println("Failed to reinitialize gyro_accel_pub.");
         return false;
     }
-    digitalWrite(LED_PIN_CONNECTED, HIGH); delay(500);
-    digitalWrite(LED_PIN_CONNECTED, LOW); delay(500);
-    // Re-setup publishers, subscribers, and other ROS entities
-    // You might need to ensure old entities are properly finalized if applicable
-    DebugSerial.println("Reconnection attempt finished.");
-    return setup_node_and_entities();;
+    if (!RCCHECK(rclc_publisher_init_default(&bar100_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bar100_data"))) {
+        DebugSerial.println("Failed to reinitialize bar100_pub.");
+        return false;
+    }
+    if (!RCCHECK(rclc_timer_init_default(&timer, &support, RCL_MS_TO_NS(50), gyro_accel_timer_callback))) {
+        DebugSerial.println("Failed to reinitialize timer.");
+        return false;
+    }
+    if (!RCCHECK(rclc_executor_init(&executor, &support.context, 5, &allocator))) {
+        DebugSerial.println("Failed to reinitialize executor.");
+        return false;
+    }
+    if (!RCCHECK(rclc_executor_add_timer(&executor, &timer))) {
+        DebugSerial.println("Failed to add timer to executor.");
+        return false;
+    }
+    if (!RCCHECK(rclc_subscription_init_default(&motors_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/motor_data"))) {
+        DebugSerial.println("Failed to reinitialize motors_sub.");
+        return false;
+    }
+    if (!RCCHECK(rclc_executor_add_subscription(&executor, &motors_sub, &motors_msg, subscription_callback_motors, ON_NEW_DATA))) {
+        DebugSerial.println("Failed to add motors_sub to executor.");
+        return false;
+    }
+    if (!RCCHECK(rclc_subscription_init_default(&lights_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/light_data"))) {
+        DebugSerial.println("Failed to reinitialize lights_sub.");
+        return false;
+    }
+    if (!RCCHECK(rclc_executor_add_subscription(&executor, &lights_sub, &lights_msg, subscription_callback_lights, ON_NEW_DATA))) {
+        DebugSerial.println("Failed to add lights_sub to executor.");
+        return false;
+    }
+    DebugSerial.println("Reconnection successful.");
+    digitalWrite(LED_PIN_CONNECTED, HIGH); // Indicate successful connection
+    return true;
 }
 
-
 bool check_connection() {
-    // Example check, adapt based on actual use case
     rcl_ret_t ret = rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
     if (ret != RCL_RET_OK) {
         DebugSerial.println("Connection check failed.");
@@ -188,7 +201,6 @@ bool check_connection() {
 }
 
 void cleanup_ros_entities() {
-    // Properly finalize all entities
     rcl_publisher_fini(&gyro_accel_pub, &node);
     rcl_publisher_fini(&bar100_pub, &node);
     rcl_subscription_fini(&motors_sub, &node);
@@ -198,9 +210,6 @@ void cleanup_ros_entities() {
     rcl_node_fini(&node);
 }
 
-
-
-//========================== ROS Initialization =============================================
 bool setup_node_and_entities() {
     set_microros_transports();
     allocator = rcl_get_default_allocator();
@@ -228,9 +237,7 @@ bool setup_node_and_entities() {
     return true;
 }
 
-//========================== System Setup ===================================================
 void setup() {
-    //Serial.println("In Setup");
     pinMode(LED_PIN_CONNECTED, OUTPUT);
     digitalWrite(LED_PIN_CONNECTED, LOW);
     // Attach motor controllers:
@@ -263,10 +270,6 @@ void setup() {
     // Setup main Agent Serial
     MainSerial.begin(115200);
 
-    //if (!bme.begin(0x76)) { // Initialize BME280 sensor
-    //  Serial.println("Could not find a valid BME280 sensor, check wiring!");
-    //}
-
     bar100.init();
     bar100.setFluidDensity(997); // kg/m^3 (freshwater, 1029 for seawater)
 
@@ -285,12 +288,15 @@ void setup() {
     }
 
     connected = setup_node_and_entities();
-
 }
 
-//========================== Main Loop ======================================================
-
 void loop() {
+        // Check connection periodically
+    if (rmw_uros_ping_agent(1000, 1) != RMW_RET_OK) {
+        connected = false;
+        DebugSerial.println("Agent not reachable. Attempting to reconnect...");
+    }
+
     if (!connected || !check_connection()) {
         DebugSerial.println("Connection lost, attempting to reconnect...");
         connected = reconnect_to_agent();  // Attempt to reconnect
@@ -301,5 +307,5 @@ void loop() {
         }
     }
 
-    delay(10); // Small delay to avoid running the loop too fast
+    delay(10); // Delay to avoid running the loop too fast
 }
