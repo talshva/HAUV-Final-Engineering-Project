@@ -29,8 +29,8 @@
 #define CAM_SERVO_MAX 180
 
 //========================== Pinout =========================================================
-Servo esc1, esc2, esc3, esc4, esc5;
-Servo light1, light2, light_couple;
+Servo esc1, esc2, esc3, esc4, esc5, esc6;
+Servo light_single, light_couple;
 Servo cam_servo;
 Adafruit_MPU6050 mpu;
 KellerLD bar100;
@@ -39,9 +39,9 @@ HardwareSerial DebugSerial(1); // Use UART1 for debugging
 
 //Adafruit_BME280 bme; // I2C
 
-int esc_pins[] = {32, 33, 25, 26, 27};
-int light_pins[] = {14, 12, 13}; // light1, light2, couple
-int cam_servo_pin = 19;
+int esc_pins[] = {27, 26, 25, 33, 32, 14};
+int light_pins[] = {13, 19}; // light_single, light_couple
+int cam_servo_pin = 12;
 
 //========================== Publishers definitions =========================================
 rcl_publisher_t gyro_accel_pub;
@@ -50,9 +50,9 @@ rcl_publisher_t bar100_pub;
 geometry_msgs__msg__Twist bar100_msg;
 //========================== Subscribers definitions ========================================
 rcl_subscription_t motors_sub;
-rcl_subscription_t lights_sub;
+rcl_subscription_t lights_servo_sub;
 geometry_msgs__msg__Twist motors_msg;
-geometry_msgs__msg__Vector3 lights_msg;
+geometry_msgs__msg__Vector3 lights_servo_msg;
 
 //========================== ROS variables ==================================================
 rclc_executor_t executor;
@@ -70,7 +70,7 @@ void subscription_callback_motors(const void *msgin) {
     int motor3_val = static_cast<int>(msg->linear.z);
     int motor4_val = static_cast<int>(msg->angular.x);
     int motor5_val = static_cast<int>(msg->angular.y);
-    int cam_servo_val = static_cast<int>(msg->angular.z);
+    int motor6_val = static_cast<int>(msg->angular.z);
 
     if (motor1_val >= ESC_MIN && motor1_val <= ESC_MAX) {
         esc1.writeMicroseconds(motor1_val); // Send PWM signal to ESC/motor 1.
@@ -87,26 +87,27 @@ void subscription_callback_motors(const void *msgin) {
     if (motor5_val >= ESC_MIN && motor5_val <= ESC_MAX) {
         esc5.writeMicroseconds(motor5_val); // Send PWM signal to ESC/motor 5.
     }
-    if (cam_servo_val >= CAM_SERVO_MIN && cam_servo_val <= CAM_SERVO_MAX) {
-        cam_servo.write(cam_servo_val); // Send PWM signal to camera servo.
+    if (motor6_val >= ESC_MIN && motor6_val <= ESC_MAX) {
+        esc6.writeMicroseconds(motor6_val); // Send PWM signal to ESC/motor 6.
     }
 }
 
-void subscription_callback_lights(const void *msgin) {
+void subscription_callback_lights_servo(const void *msgin) {
     const geometry_msgs__msg__Vector3 *msg = (const geometry_msgs__msg__Vector3 *)msgin;
-    int light1_val = static_cast<int>(msg->x);
-    int light2_val = static_cast<int>(msg->y);
-    int light_couple_val = static_cast<int>(msg->z);
+    int light_single_val = static_cast<int>(msg->x);
+    int light_couple_val = static_cast<int>(msg->y);
+    int cam_servo_val = static_cast<int>(msg->z);
 
-    if (light1_val >= LIGHT_MIN && light1_val <= LIGHT_MAX) {
-        light1.writeMicroseconds(light1_val); // Send PWM signal to lights.
-    }
-    if (light2_val >= LIGHT_MIN && light2_val <= LIGHT_MAX) {
-        light2.writeMicroseconds(light2_val); // Send PWM signal to lights.
+    if (light_single_val >= LIGHT_MIN && light_single_val <= LIGHT_MAX) {
+        light_single.writeMicroseconds(light_single_val); // Send PWM signal to lights.
     }
     if (light_couple_val >= LIGHT_MIN && light_couple_val <= LIGHT_MAX) {
         light_couple.writeMicroseconds(light_couple_val); // Send PWM signal to lights.
     }
+    if (cam_servo_val >= CAM_SERVO_MIN && cam_servo_val <= CAM_SERVO_MAX) {
+        cam_servo.write(cam_servo_val); // Send PWM signal to camera servo.
+    }    
+
 }
 
 void gyro_accel_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
@@ -178,12 +179,12 @@ bool reconnect_to_agent() {
         DebugSerial.println("Failed to add motors_sub to executor.");
         return false;
     }
-    if (!RCCHECK(rclc_subscription_init_default(&lights_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/light_data"))) {
-        DebugSerial.println("Failed to reinitialize lights_sub.");
+    if (!RCCHECK(rclc_subscription_init_default(&lights_servo_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/lights_servo_data"))) {
+        DebugSerial.println("Failed to reinitialize lights_servo_sub.");
         return false;
     }
-    if (!RCCHECK(rclc_executor_add_subscription(&executor, &lights_sub, &lights_msg, subscription_callback_lights, ON_NEW_DATA))) {
-        DebugSerial.println("Failed to add lights_sub to executor.");
+    if (!RCCHECK(rclc_executor_add_subscription(&executor, &lights_servo_sub, &lights_servo_msg, subscription_callback_lights_servo, ON_NEW_DATA))) {
+        DebugSerial.println("Failed to add lights_servo_sub to executor.");
         return false;
     }
     DebugSerial.println("Reconnection successful.");
@@ -204,7 +205,7 @@ void cleanup_ros_entities() {
     rcl_publisher_fini(&gyro_accel_pub, &node);
     rcl_publisher_fini(&bar100_pub, &node);
     rcl_subscription_fini(&motors_sub, &node);
-    rcl_subscription_fini(&lights_sub, &node);
+    rcl_subscription_fini(&lights_servo_sub, &node);
     rclc_executor_fini(&executor);
     rclc_support_fini(&support);
     rcl_node_fini(&node);
@@ -227,13 +228,13 @@ bool setup_node_and_entities() {
     RCCHECK(rclc_executor_add_subscription(
         &executor, &motors_sub, &motors_msg,
         subscription_callback_motors, ON_NEW_DATA));
-    // Light Subscriber
+    // Light/servo Subscriber
     RCCHECK(rclc_subscription_init_default(
-        &lights_sub, &node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/light_data"));
+        &lights_servo_sub, &node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/lights_servo_data"));
     RCCHECK(rclc_executor_add_subscription(
-        &executor, &lights_sub, &lights_msg,
-        subscription_callback_lights, ON_NEW_DATA));
+        &executor, &lights_servo_sub, &lights_servo_msg,
+        subscription_callback_lights_servo, ON_NEW_DATA));
     return true;
 }
 
@@ -246,10 +247,11 @@ void setup() {
     esc3.attach(esc_pins[2]);
     esc4.attach(esc_pins[3]);
     esc5.attach(esc_pins[4]);
+    esc6.attach(esc_pins[5]);
+
     // Attach lights:
-    light1.attach(light_pins[0]);
-    light2.attach(light_pins[1]);
-    light_couple.attach(light_pins[2]);
+    light_single.attach(light_pins[0]);
+    light_couple.attach(light_pins[1]);
     // Attach Pan-tilt servo:
     cam_servo.attach(cam_servo_pin);
     // Initial states
@@ -258,12 +260,10 @@ void setup() {
     esc3.writeMicroseconds(1500);
     esc4.writeMicroseconds(1500);
     esc5.writeMicroseconds(1500);
-    light1.writeMicroseconds(1100);
-    light2.writeMicroseconds(1100);
+    esc6.writeMicroseconds(1500);
+    light_single.writeMicroseconds(1100);
     light_couple.writeMicroseconds(1100);
     cam_servo.write(90);
-    delay(1000);
-    cam_servo.write(120);
 
     // Setup debugging serial
     DebugSerial.begin(115200, SERIAL_8N1, DEBUG_RX_PIN, DEBUG_TX_PIN);
