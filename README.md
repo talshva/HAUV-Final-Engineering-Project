@@ -77,6 +77,7 @@ sudo systemctl stop ros2_launch.service
 sudo systemctl restart ros2_launch.service
 sudo systemctl status ros2_launch.service
 sudo journalctl -u ros2_launch.service -f
+killall guidance_node
 
 # Remember to source your ROS2 workspace
 source ~/ros2_ws/install/setup.bash
