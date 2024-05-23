@@ -50,7 +50,9 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 ### Running rviz simulation:
 1. Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
 if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
-2. run `ros2 launch rov_sim_pkg rov.launch.py`
+2. From the remote Laptop running WSL,
+- Check that the motor_data can be seen. If not, check again for ROS_DOMAIN_ID matching.
+- run `ros2 launch rov_sim_pkg rov.launch.py`
 3. running joystick node using `ros2 run joy joy_node`
 4. start playing.
 
