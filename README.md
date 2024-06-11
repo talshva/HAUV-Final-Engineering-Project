@@ -1,7 +1,11 @@
 # HAUV - Hovering Autonomous Underwater Vehicle
 
-**HAUV** is an innovative compact underwater vehicle designed to enhance underwater exploration and object retrieval. 
+**HAUV** is a compact underwater vehicle designed to enhance underwater exploration and object retrieval. 
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
+
+
+
+https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/0318bdce-f00c-404a-8d6f-022325acf133
 
 
 ## Hardware
@@ -14,8 +18,8 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 
 - **Main PC (UP Board)**: Acts as the central processing unit, running ROS2 for sensor data processing and system integration.
 - **RT MCU (ESP32 WROOM)**: Real-time microcontroller for managing lower-level controls and communication.
-- **Sensors**: IMU, USBL, Depth & Pressure (BAR100), Temperature & Humidity (BME280), and DVL for precise navigation and environmental monitoring.
-- **Propulsion**: 5x Blue Robotics Thrusters controlled by the ESP32 through PWM signals.
+- **Sensors**: 9-dof IMU (BNO055), Depth & Pressure (BAR100), Temperature & Humidity (BME280), and DVL for precise navigation and environmental monitoring.
+- **Propulsion**: 6x Blue Robotics Thrusters controlled by the ESP32 through PWM signals.
 - **Camera System**: Provides visual feedback for navigation and object detection.
 - **Lights**: Ensures visibility in underwater environments.
 
@@ -39,22 +43,24 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 ## Operating Code
 
 ### ROS2 Nodes on UP Board
-
-- **Autopilot Node**: Handles vehicle navigation and control.
-- **Guidance Node**: Processes sensor data to assist in object detection and mapping.
+- **Guidance Node**: Handles vehicle navigation and control.
 - **Camera Node**: Manages the camera system for real-time video feedback.
 
 ### Running the agent:
 `ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
 
-### Running rviz simulation:
-1. Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
+### Running RVIZ2 simulation:
+- Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
 if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
-2. From the remote Laptop running WSL,
 - Check that the motor_data can be seen. If not, check again for ROS_DOMAIN_ID matching.
 - run `ros2 launch rov_sim_pkg rov.launch.py`
-3. running joystick node using `ros2 run joy joy_node`
-4. start playing.
+- running joystick node using `ros2 run joy joy_node`
+- start playing.
+Simulation Example:
+
+
+
+
 
 ### Using the arduino CLI to flash the esp32:
 1. Go to main sketch directory:
@@ -91,10 +97,6 @@ if screen isn't terminating, kill manually by:
 `screen -ls` (to get the session id)
 `screen -XS <session-id> quit`
    
-## Common Issues
-
-- **VS Code Connection Issues**: Solutions for `XHR Failed` errors and reestablishing a stable connection.
-- **Freeing Memory on UP Board**: Commands for cleaning up unused files and managing system resources.
 
 
 ## Acknowledgments
