@@ -15,7 +15,6 @@
 #include <Adafruit_MPU6050.h>
 #include "KellerLD.h"
 
-
 #define SEALEVELPRESSURE_HPA (1013.25)
 #define RCCHECK(fn) ((fn) == RCL_RET_OK)
 #define LED_PIN_CONNECTED 2 // LED to indicate connection status
