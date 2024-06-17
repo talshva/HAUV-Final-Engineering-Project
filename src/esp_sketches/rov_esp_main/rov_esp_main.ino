@@ -19,7 +19,7 @@
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 #define RCCHECK(fn) ((fn) == RCL_RET_OK)
-#define LED_PIN_CONNECTED 2 // LED to indicate connection status
+#define INDICATOR_LED_PIN 0 // LED to indicate connection status
 #define DEBUG_TX_PIN 17 
 #define DEBUG_RX_PIN 16 
 #define ESC_MIN 1100
@@ -194,7 +194,9 @@ void sensors_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
 bool reconnect_to_agent() {
     cleanup_ros_entities();
+    digitalWrite(INDICATOR_LED_PIN, LOW); // Indicate successful connection
     delay(1000); // Wait a bit before trying to reconnect
+    digitalWrite(INDICATOR_LED_PIN, HIGH); // Indicate successful connection
     set_microros_transports();
     allocator = rcl_get_default_allocator();
     if (!RCCHECK(rclc_support_init(&support, 0, NULL, &allocator))) {
@@ -242,7 +244,6 @@ bool reconnect_to_agent() {
         return false;
     }
     DebugSerial.println("Reconnection successful.");
-    digitalWrite(LED_PIN_CONNECTED, HIGH); // Indicate successful connection
     return true;
 }
 
@@ -302,8 +303,8 @@ void showBitmap() {
 
 
 void setup() {
-    pinMode(LED_PIN_CONNECTED, OUTPUT);
-    digitalWrite(LED_PIN_CONNECTED, LOW);
+    pinMode(INDICATOR_LED_PIN, OUTPUT);
+    digitalWrite(INDICATOR_LED_PIN, HIGH);
     // Attach motor controllers:
     esc1.attach(esc_pins[0]);
     esc2.attach(esc_pins[1]);
