@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist, Vector3
+from nav_msgs.msg import Odometry
 import math
 
 class GuidanceNode(Node):
@@ -12,15 +13,21 @@ class GuidanceNode(Node):
         # Publishers
         self.motors_publisher = self.create_publisher(Twist, '/motor_data', 10)
         self.lights_publisher = self.create_publisher(Vector3, '/lights_servo_data', 10)
+        self.odometry_publisher = self.create_publisher(Odometry, '/odometry', 10)
+        
         # Subscribers
-        self.subscription = self.create_subscription(Twist, '/esp32/gyro_accel_data', self.gyro_accel_callback, 10)
+        self.orientation_subscription = self.create_subscription(Twist, '/esp32/bno055_data', self.orientation_callback, 10)
+        self.dvl_subscription = self.create_subscription(Twist, '/dvl_data', self.dvl_callback, 10)
         self.joy_subscription = self.create_subscription(Joy, '/joy', self.joy_callback, 10)
+        self.bar100_subscription = self.create_subscription(Vector3, '/esp32/bar100_data', self.bar100_callback, 10)
+        
         # Timers
         self.motor_light_pub_timer = self.create_timer(0.05, self.motor_light_publisher)  # 20 Hz
 
         # Variables
         self.start_time = self.get_clock().now()
-        self.gyro_accel_values = {"linear_x": 0.0, "linear_y": 0.0, "linear_z": 0.0, "angular_x": 0.0, "angular_y": 0.0, "angular_z": 0.0}
+        self.orientation = {"x": 0.0, "y": 0.0, "z": 0.0}  # roll, pitch, yaw
+        self.dvl_velocities = {"vx": 0.0, "vy": 0.0, "vz": 0.0}
         self.motor_velocity = {"motor1": 1500, "motor2": 1500, "motor3": 1500, "motor4": 1500, "motor5": 1500, "cam_servo": 90, "motor6": 1500}
         self.light_intensity = {"light_single": 1100, "light_couple": 1100}
         self.joystick_axes = [0.0] * 6  # Initialize joystick axes array
@@ -30,21 +37,28 @@ class GuidanceNode(Node):
         self.joystick_mode = True  # Start in joystick mode by default
         self.previous_button_states = [False] * 6  # Track previous button states for debouncing
 
-        # PID constants for autonomous control (these values need to be tuned)
-        self.kp_roll = 15.0
-        self.kd_roll = 0.2
-        self.kp_pitch = 15.0
-        self.kd_pitch = 0.2
-        self.kp_yaw = 15.0
-        self.kd_yaw = 0.2
+        # Target orientation in autonomous mode
+        self.target_orientation = {"x": 0.0, "y": 0.0, "z": 0.0}
 
-    def gyro_accel_callback(self, msg):
-        self.gyro_accel_values["linear_x"] = msg.linear.x
-        self.gyro_accel_values["linear_y"] = msg.linear.y
-        self.gyro_accel_values["linear_z"] = msg.linear.z
-        self.gyro_accel_values["angular_x"] = msg.angular.x
-        self.gyro_accel_values["angular_y"] = msg.angular.y
-        self.gyro_accel_values["angular_z"] = msg.angular.z
+        # PID constants for autonomous control (these values need to be tuned)
+        self.kp_yaw = 15.0
+        self.kd_yaw = 2.0
+        self.kp_pitch = 15.0
+        self.kd_pitch = 2.0
+        self.kp_roll = 15.0
+        self.kd_roll = 2.0
+        # Initialize state estimate for odometry
+        self.state_estimate = [0.0, 0.0, 0.0]  # x, y, z position        
+
+    def orientation_callback(self, msg):
+        self.orientation["x"] = msg.linear.x #yaw
+        self.orientation["y"] = msg.linear.y #pitch
+        self.orientation["z"] = msg.linear.z #roll
+
+    def dvl_callback(self, msg):
+        self.dvl_velocities["vx"] = msg.linear.x
+        self.dvl_velocities["vy"] = msg.linear.y
+        self.dvl_velocities["vz"] = msg.linear.z
 
     def joy_callback(self, msg):
         # Read joystick inputs
@@ -62,6 +76,8 @@ class GuidanceNode(Node):
         if msg.buttons[5] and not self.previous_button_states[5]:
             self.joystick_mode = not self.joystick_mode
             self.get_logger().info(f'Switched to {"Joystick" if self.joystick_mode else "Autonomous"} mode')
+            if not self.joystick_mode:
+                self.target_orientation = self.orientation.copy()
 
         # Debounce logic for light toggle buttons
         if msg.buttons[0] and not self.previous_button_states[0]:
@@ -73,6 +89,9 @@ class GuidanceNode(Node):
         self.previous_button_states[5] = msg.buttons[5]
         self.previous_button_states[0] = msg.buttons[0]
         self.previous_button_states[1] = msg.buttons[1]
+
+    def bar100_callback(self, msg):
+        pass
 
     def motor_light_publisher(self):
         if self.joystick_mode:
@@ -138,24 +157,39 @@ class GuidanceNode(Node):
         light_msg.z = float(self.motor_velocity["cam_servo"])
         self.lights_publisher.publish(light_msg)
 
+        # Update odometry
+        self.publish_odometry()
+
     def calculate_autonomous_motor_speeds(self):
-        # Implement a simple proportional control for roll, pitch, and yaw stabilization
-        roll_error = -self.gyro_accel_values["angular_x"]
-        pitch_error = -self.gyro_accel_values["angular_y"]
-        yaw_error = -self.gyro_accel_values["angular_z"]
+        # Convert target orientation and current orientation from degrees to radians
+        target_yaw_rad = math.radians(self.target_orientation["x"])
+        target_pitch_rad = math.radians(self.target_orientation["y"])
+        
+        current_yaw_rad = math.radians(self.orientation["x"])
+        current_pitch_rad = math.radians(self.orientation["y"])
 
-        # Apply proportional control
-        roll_adjustment = self.kp_roll * roll_error
-        pitch_adjustment = self.kp_pitch * pitch_error
-        yaw_adjustment = self.kp_yaw * yaw_error
+        # PID control for maintaining orientation with angle wrap-around handling
+        yaw_error = self.angle_wrap(target_yaw_rad - current_yaw_rad)
+        pitch_error = self.angle_wrap(target_pitch_rad - current_pitch_rad)
 
-        # Calculate motor speeds based on adjustments
-        motor1_speed = 1500 + roll_adjustment + pitch_adjustment - yaw_adjustment
-        motor3_speed = 1500 - roll_adjustment + pitch_adjustment + yaw_adjustment
-        motor6_speed = 1500 - roll_adjustment - pitch_adjustment - yaw_adjustment
-        motor4_speed = 1500 + roll_adjustment - pitch_adjustment + yaw_adjustment
-        motor2_speed = 1500  # rear_vertical
-        motor5_speed = 1500  # front_vertical
+        yaw_adjustment = int((400/(15*math.pi)) * self.kp_yaw * yaw_error + self.kd_yaw * current_yaw_rad)
+        pitch_adjustment = int((400/(15*math.pi)) * self.kp_pitch * pitch_error + self.kd_pitch * current_pitch_rad)
+
+        self.get_logger().info(f"yaw_error: {yaw_error}")
+        self.get_logger().info(f"yaw_adjustment: {yaw_adjustment}")
+
+        # Use DVL velocities to correct the speeds
+        vx = self.dvl_velocities["vx"]
+        vy = self.dvl_velocities["vy"]
+        vz = self.dvl_velocities["vz"]
+
+        # Calculate motor speeds based on adjustments and DVL velocities
+        motor1_speed = 1500 + yaw_adjustment + (vx + vy) / math.sqrt(2)
+        motor3_speed = 1500 + yaw_adjustment + (vx - vy) / math.sqrt(2)
+        motor6_speed = 1500 - yaw_adjustment - (vx + vy) / math.sqrt(2)
+        motor4_speed = 1500 - yaw_adjustment - (vx - vy) / math.sqrt(2)
+        motor2_speed = 1500 + pitch_adjustment + vz  # rear_vertical
+        motor5_speed = 1500 - pitch_adjustment + vz  # front_vertical
 
         # Clamp motor speeds to valid range
         motor1_speed = max(1100, min(1900, motor1_speed))
@@ -171,6 +205,50 @@ class GuidanceNode(Node):
         self.motor_velocity["motor4"] = motor4_speed
         self.motor_velocity["motor5"] = motor5_speed
         self.motor_velocity["motor6"] = motor6_speed
+
+    def angle_wrap(self, angle):
+        """Wrap angle to range [-pi, pi]"""
+        return (angle + math.pi) % (2 * math.pi) - math.pi
+
+    def publish_odometry(self):
+        odom = Odometry()
+        odom.header.stamp = self.get_clock().now().to_msg()
+        odom.header.frame_id = 'odom'
+        odom.child_frame_id = 'base_link'
+
+        # Integrate DVL velocities to get position
+        dt = 0.05  # Assuming 20 Hz update rate
+        self.state_estimate[0] += self.dvl_velocities["vx"] * dt
+        self.state_estimate[1] += self.dvl_velocities["vy"] * dt
+        self.state_estimate[2] += self.dvl_velocities["vz"] * dt
+
+        odom.pose.pose.position.x = self.state_estimate[0]
+        odom.pose.pose.position.y = self.state_estimate[1]
+        odom.pose.pose.position.z = self.state_estimate[2]
+
+        quaternion = self.euler_to_quaternion(
+            self.orientation["x"],
+            self.orientation["y"],
+            self.orientation["z"]
+        )
+
+        odom.pose.pose.orientation.x = quaternion[0]
+        odom.pose.pose.orientation.y = quaternion[1]
+        odom.pose.pose.orientation.z = quaternion[2]
+        odom.pose.pose.orientation.w = quaternion[3]
+
+        odom.twist.twist.linear.x = self.dvl_velocities["vx"]
+        odom.twist.twist.linear.y = self.dvl_velocities["vy"]
+        odom.twist.twist.linear.z = self.dvl_velocities["vz"]
+
+        self.odometry_publisher.publish(odom)
+
+    def euler_to_quaternion(self, roll, pitch, yaw):
+        qx = math.sin(roll / 2) * math.cos(pitch / 2) * math.cos(yaw / 2) - math.cos(roll / 2) * math.sin(pitch / 2) * math.sin(yaw / 2)
+        qy = math.cos(roll / 2) * math.sin(pitch / 2) * math.cos(yaw / 2) + math.sin(roll / 2) * math.cos(pitch / 2) * math.sin(yaw / 2)
+        qz = math.cos(roll / 2) * math.cos(pitch / 2) * math.sin(yaw / 2) - math.sin(roll / 2) * math.sin(pitch / 2) * math.cos(yaw / 2)
+        qw = math.cos(roll / 2) * math.cos(pitch / 2) * math.cos(yaw / 2) + math.sin(roll / 2) * math.sin(pitch / 2) * math.sin(yaw / 2)
+        return [qx, qy, qz, qw]
 
 def main(args=None):
     rclpy.init(args=args)
