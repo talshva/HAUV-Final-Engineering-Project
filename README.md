@@ -8,8 +8,7 @@ https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/be1a52
 
 
 ## Hardware
-
-![HAUV Block Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4f9e4e93-6bb8-4646-aa27-57463f9cde8e)
+![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/a0c005e6-e0a0-4604-9540-7250ab1f0514)
 
 ### Block Diagram Description
 
