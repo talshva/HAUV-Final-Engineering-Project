@@ -4,8 +4,8 @@
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
 
-https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/be1a52d4-17eb-419e-841f-f16a777fe32c
 
+https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6
 
 ## Hardware
 ![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/a0c005e6-e0a0-4604-9540-7250ab1f0514)
@@ -56,9 +56,7 @@ if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
 - start playing.
 Simulation Example:
 
-
-https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/d82e4049-b91d-40fe-90d1-3eb95b58fe3c
-
+https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323
 
 ### Using the arduino CLI to flash the esp32:
 1. Go to main sketch directory:
