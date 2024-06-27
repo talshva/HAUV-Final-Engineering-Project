@@ -8,7 +8,7 @@ Equipped with advanced navigation systems and a suite of sensors, HAUV serves as
 https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6
 
 ## Hardware
-![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/a0c005e6-e0a0-4604-9540-7250ab1f0514)
+![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/8492f26f-86e4-493d-8b80-7392e1fb8db5)
 
 ### Block Diagram Description
 
@@ -40,12 +40,21 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 
 ## Operating Code
 
-### ROS2 Nodes on UP Board
-- **Guidance Node**: Handles vehicle navigation and control.
-- **Camera Node**: Manages the camera system for real-time video feedback.
-
 ### Running the agent:
+On the UP board, run:
 `ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
+after the agent is running, reset the esp32 to let it automatically connect to the agent.
+
+### ROS2 Nodes on UP Board
+After successfully connecting to the agent, the esp32 should publish sensor data. 
+To check the data validity, use `ros2 topic echo /esp32/<name-of-sensor-topic>`.
+To send motor commands to the esp32 and control the ROV, run the following nodes:
+- **Guidance Node**: Handles vehicle navigation and control. (`ros2 run autopilot guidance_node`).
+- **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic (`ros2 run joy joy_node`);
+
+To receive camera data and send it to remote PC via TCP:
+- **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
+
 
 ### Running RVIZ2 simulation:
 - Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
@@ -66,7 +75,7 @@ https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd
 `arduino-cli compile --fqbn esp32:esp32:esp32da rov_esp_main.ino`
 4. Flash the code onto the esp32:
 `arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32da rov_esp_main.ino`
-
+if upload failed, check that the USB port is not used by something else.
 
 ### Typical Commands for Troubleshooting
 1. UP:
@@ -74,26 +83,28 @@ https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd
 ros2 topic list
 ros2 topic echo /name_of_topic
 
+```
+### future Implementation
+After getting everything to work, we ideally prefer to run all nodes on UP startup, using a system service.
+These are some troubleshooting commands for the service:
+``` bash
 sudo systemctl daemon-reload
 sudo systemctl start ros2_launch.service
 sudo systemctl stop ros2_launch.service
 sudo systemctl restart ros2_launch.service
 sudo systemctl status ros2_launch.service
 sudo journalctl -u ros2_launch.service -f
-killall guidance_node
-
-# Remember to source your ROS2 workspace
-source ~/ros2_ws/install/setup.bash
 ```
-2. ESP:
-monitoring the serial messages:
+### Additional Technical Details:
+- kill nodes directly using `killall guidance_node`
+- Remember to source your ROS2 workspace: `source ~/ros2_ws/install/setup.bash`
+- When debugging the esp32 using external UART, we can monitor the serial messages:
 `screen /dev/ttyUSB1 115200`
 if screen isn't terminating, kill manually by:
 `ctrl+A, then press K`, or:
 `screen -ls` (to get the session id)
 `screen -XS <session-id> quit`
-   
-
+  
 
 ## Acknowledgments
 
