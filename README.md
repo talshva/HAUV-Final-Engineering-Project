@@ -23,7 +23,7 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 
 ### Connection Overview
 
-- Thrusters, camera, lights, and pan-tilt servo receive control signals from the ESP32 WROOM, which is interfaced with the main PC via serial communication.
+- Thrusters, lights, and pan-tilt servo receive control signals from the ESP32 WROOM, which is interfaced with the main PC via serial communication.
 - The ESP32 is also responsible for low-level sensor readings and actuator controls.
 
 ## Software Configuration
