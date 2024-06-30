@@ -21,6 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'guidance_node = autopilot_pkg.guidance_node:main',
+            'dvl_node = autopilot_pkg.dvl_node:main',
+
         ],
     },
 )

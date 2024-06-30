@@ -17,7 +17,7 @@ class GuidanceNode(Node):
         
         # Subscribers
         self.orientation_subscription = self.create_subscription(Twist, '/esp32/bno055_data', self.orientation_callback, 10)
-        self.dvl_subscription = self.create_subscription(Twist, '/dvl_data', self.dvl_callback, 10)
+        self.dvl_subscription = self.create_subscription(Twist, '/dvl/velocity_data', self.dvl_callback, 10)
         self.joy_subscription = self.create_subscription(Joy, '/joy', self.joy_callback, 10)
         self.bar100_subscription = self.create_subscription(Vector3, '/esp32/bar100_data', self.bar100_callback, 10)
         
@@ -157,9 +157,6 @@ class GuidanceNode(Node):
         light_msg.z = float(self.motor_velocity["cam_servo"])
         self.lights_publisher.publish(light_msg)
 
-        # Update odometry
-        self.publish_odometry()
-
     def calculate_autonomous_motor_speeds(self):
         # Convert target orientation and current orientation from degrees to radians
         target_yaw_rad = math.radians(self.target_orientation["x"])
@@ -179,9 +176,9 @@ class GuidanceNode(Node):
         self.get_logger().info(f"yaw_adjustment: {yaw_adjustment}")
 
         # Use DVL velocities to correct the speeds
-        vx = self.dvl_velocities["vx"]
-        vy = self.dvl_velocities["vy"]
-        vz = self.dvl_velocities["vz"]
+        vx = self.dvl_velocities["vx"]*1000
+        vy = self.dvl_velocities["vy"]*1000
+        vz = self.dvl_velocities["vz"]*1000
 
         # Calculate motor speeds based on adjustments and DVL velocities
         motor1_speed = 1500 + yaw_adjustment + (vx + vy) / math.sqrt(2)
@@ -210,45 +207,6 @@ class GuidanceNode(Node):
         """Wrap angle to range [-pi, pi]"""
         return (angle + math.pi) % (2 * math.pi) - math.pi
 
-    def publish_odometry(self):
-        odom = Odometry()
-        odom.header.stamp = self.get_clock().now().to_msg()
-        odom.header.frame_id = 'odom'
-        odom.child_frame_id = 'base_link'
-
-        # Integrate DVL velocities to get position
-        dt = 0.05  # Assuming 20 Hz update rate
-        self.state_estimate[0] += self.dvl_velocities["vx"] * dt
-        self.state_estimate[1] += self.dvl_velocities["vy"] * dt
-        self.state_estimate[2] += self.dvl_velocities["vz"] * dt
-
-        odom.pose.pose.position.x = self.state_estimate[0]
-        odom.pose.pose.position.y = self.state_estimate[1]
-        odom.pose.pose.position.z = self.state_estimate[2]
-
-        quaternion = self.euler_to_quaternion(
-            self.orientation["x"],
-            self.orientation["y"],
-            self.orientation["z"]
-        )
-
-        odom.pose.pose.orientation.x = quaternion[0]
-        odom.pose.pose.orientation.y = quaternion[1]
-        odom.pose.pose.orientation.z = quaternion[2]
-        odom.pose.pose.orientation.w = quaternion[3]
-
-        odom.twist.twist.linear.x = self.dvl_velocities["vx"]
-        odom.twist.twist.linear.y = self.dvl_velocities["vy"]
-        odom.twist.twist.linear.z = self.dvl_velocities["vz"]
-
-        self.odometry_publisher.publish(odom)
-
-    def euler_to_quaternion(self, roll, pitch, yaw):
-        qx = math.sin(roll / 2) * math.cos(pitch / 2) * math.cos(yaw / 2) - math.cos(roll / 2) * math.sin(pitch / 2) * math.sin(yaw / 2)
-        qy = math.cos(roll / 2) * math.sin(pitch / 2) * math.cos(yaw / 2) + math.sin(roll / 2) * math.cos(pitch / 2) * math.sin(yaw / 2)
-        qz = math.cos(roll / 2) * math.cos(pitch / 2) * math.sin(yaw / 2) - math.sin(roll / 2) * math.sin(pitch / 2) * math.cos(yaw / 2)
-        qw = math.cos(roll / 2) * math.cos(pitch / 2) * math.cos(yaw / 2) + math.sin(roll / 2) * math.sin(pitch / 2) * math.sin(yaw / 2)
-        return [qx, qy, qz, qw]
 
 def main(args=None):
     rclpy.init(args=args)
