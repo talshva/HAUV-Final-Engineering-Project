@@ -36,7 +36,10 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 ### On ESP32 (RT MCU)
 
 1. **Micro-ROS-Arduino Setup**: Install the micro-ROS library for Arduino on the ESP32 to enable ROS2 communication.
-2. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over SSH.
+https://github.com/micro-ROS/micro_ros_arduino
+You can find the latest version for micro-ros-arduino-foxy in the releases tab.
+
+3. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over SSH.
 
 ## Operating Code
 
