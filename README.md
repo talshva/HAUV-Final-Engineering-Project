@@ -60,7 +60,7 @@ To receive camera data and send it to remote PC via TCP:
 
 7. **Designing a More Representative Model**: This was followed by designing a more representative model in SolidWorks, ensuring all motors were located in the desired positions. I used aluminum profiles found in the lab, and built a SolidWorks model, which was then constructed in the lab.
 8.
-   ![SolidWorks Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/08dcd7ad-7690-4325-9cca-0fa1f1511e71)
+   ![SolidWorks Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01)
    ![Building the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/452fb7f9-53f0-420c-80ba-b1bd9afd695c)  
    ![Wiring the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
 
