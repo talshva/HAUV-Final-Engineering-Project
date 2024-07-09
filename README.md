@@ -41,68 +41,41 @@ To receive camera data and send it to remote PC via TCP:
 
 
 ## Timeline and Work Progress
-The timeline documents the steps taken to develop and implement HAUV:
 
-### Initial Planning and Model Characterization
-1. **Define and Characterize the Model**:
-   - Determine necessary sensors, operational depth, speed, and environment requirements.
+1. **Defining and Characterizing the Model**: The initial step was to define and characterize the model. This involved determining the necessary sensors and the conditions in which the HAUV would operate, including depth, speed, and environment.
 
-2. **Hardware and MCU Selection**:
-   - Opt for the ESP32 MCU due to its robust library support and community, and its ample PWM output pins, ensuring it can handle sensor data and motor commands efficiently.
+2. **Choosing the MCU**: To ensure the UP board handled only high-level integration, I opted to use a real-time MCU for sensor data readout and motor control. After comparing various MCUs, including the STM32 Nucleo, I chose the ESP32 due to its extensive libraries, robust community support, and numerous PWM output pins.
 
-### Software Framework and Initial Testing
-1. **Software Installation**:
-   - Installed Ubuntu 20.04 Jammy, ROS2 Foxy, Arduino CLI, and Micro-ROS-Agent.
-   - Flashed the ESP32 with micro-ROS-Arduino and set up basic publisher-subscriber example code over serial communication.
-   
-   ![Initial Setup](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/83639ce9-3ba4-4aba-ab67-78f8ffdfe51a)
+3. **Setting Up the Software Framework**: Next, I set up the software framework. This included installing Ubuntu 20.04 (Jammy), ROS2 Foxy, Arduino CLI, and micro-ros-agent. I then flashed the ESP32 with micro-ros-arduino and set up a basic publisher-subscriber example code over serial communication.  
+   ![image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/83639ce9-3ba4-4aba-ab67-78f8ffdfe51a)
 
-2. **Motor and PWM Integration**:
-   - Connected the T200 motors, lights, and a servo to the ESP32 PWM outputs.
-   - Sent publish commands from the UP board to verify the operation of multiple PWMs simultaneously, while also testing the ROS framework.
-   
-   ![PWM Verification](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/980f8fde-eba6-4f22-a2f8-1a80e6792300)
+4. **Connecting Components and Verifying PWM Operation**: I proceeded to connect the T200 motors, lights, and a servo to the ESP32 PWM outputs. I sent publish commands from the UP board to verify the operation of multiple PWMs simultaneously, while also checking the ROS framework.  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/980f8fde-eba6-4f22-a2f8-1a80e6792300)
 
-3. **IMU Integration and Initial Movement Simulation**:
-   - Integrated the MPU6050 to measure HAUV gyro/acceleration data.
-   - Simulated ROV movement using motor speed and MPU acceleration values to calculate yaw, pitch, and roll.
-   
-   ![IMU Integration](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4f9a05bb-01a2-4b5e-82c6-5f0618d48bf6)
+5. **Integrating the MPU6050**: Subsequently, I integrated the MPU6050 to measure the HAUV's gyro/acceleration data and compensate accordingly. I simulated the ROV movement using motor speeds and MPU acceleration values to calculate yaw, pitch, and roll.  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4f9a05bb-01a2-4b5e-82c6-5f0618d48bf6)
 
-### Structural Design and Motor Testing
-1. **First Setup with Basic Frame**:
-   - Attached 4 horizontal motors and 1 vertical motor to a wooden plate.
-   - Verified control in all directions.
-   
-   ![First Setup](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/550c35b5-7a5b-4ee3-b198-ca422e674704)
+6. **First Physical Setup**: My first physical setup involved attaching four motors and one vertical motor to a wooden plate to check all directional controls.  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/550c35b5-7a5b-4ee3-b198-ca422e674704)
 
-2. **SolidWorks Design and Physical Build**:
-   - Designed a representative model in SolidWorks, positioning motors as intended.
-   - Built the model using aluminum profiles.
-   
-   ![SolidWorks Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6)
-   ![Model Build](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/452fb7f9-53f0-420c-80ba-b1bd9afd695c)
-   ![Wiring](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
+7. **Designing a More Representative Model**: This was followed by designing a more representative model in SolidWorks, ensuring all motors were located in the desired positions. I used aluminum profiles found in the lab, and built a SolidWorks model, which was then constructed in the lab.  
+   ![SolidWorks Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6)  
+   ![Building the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/452fb7f9-53f0-420c-80ba-b1bd9afd695c)  
+   ![Wiring the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
 
-### Advanced Sensor Integration and Autonomous Control
-1. **Advanced IMU (BNO055) Integration**:
-   - Integrated the BNO055 for improved yaw, pitch, and roll compensation.
-   
-   ![BNO055 Integration](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
+8. **Stabilizing the HAUV**: The next goal was to stabilize the HAUV without any unwanted rotation. I attempted to calculate counterforces based on MPU6050 gyro and acceleration data but encountered noise issues. I then switched to using the BNO055 for its fused data capabilities.  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
 
-2. **Pathfinder OEM DVL Integration**:
-   - Configured the DVL for precise underwater navigation.
-   - Tested DVL data accuracy in various scenarios.
-   
-   ![DVL Integration](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b4049c02-31d9-4bf4-a882-99dd7b1478cd)
-   ![DVL Depth Test](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/59ab2e93-2b21-4b62-8523-20c145469a1e)
-   ![DVL Data Accuracy](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
+9. **Integrating the Pathfinder OEM DVL**: To address x, y, and z velocities, I integrated the Pathfinder OEM DVL by Teledyne. After wiring the DVL for power and communication, I configured, calibrated, and received its data over the Ethernet protocol. Initial tests showed promising accuracy in mm resolution for x and y coordinates.  
+   ![image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b4049c02-31d9-4bf4-a882-99dd7b1478cd)  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/59ab2e93-2b21-4b62-8523-20c145469a1e)  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/039a02d6-3f1c-48c4-8025-09734b80c4e4)  
+   ![image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
 
-### Final Testing and Simulation
-1. **Overall Testing and Autonomous Mode**:
-   - Conducted comprehensive tests to verify all control modes and sensor integrations.
-   
-   ![Final Test](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
+10. **Final Overall Test**: The final overall test involved checking the self-control mode, switching to autonomous mode, and verifying the BNO055 compensation for yaw, pitch, and roll, and the DVL compensation for x, y, and z movements.  
+   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
+
 
 2. **RVIZ2 Simulation**:
    - Ensured the simulation service was operational.
