@@ -141,9 +141,11 @@ Don't forget to download the relevant libraries to the Arudino folder in the hom
 4. Compile the code:
    
 `arduino-cli compile --fqbn esp32:esp32:esp32da rov_esp_main.ino`
+
 5. Flash the code onto the esp32:
    
 `arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32da rov_esp_main.ino`
+
 if upload failed, check that the USB port is not used by something else.
 
 ### Typical Commands for Troubleshooting
