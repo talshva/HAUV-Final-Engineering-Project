@@ -62,7 +62,8 @@ To receive camera data and send it to remote PC via TCP:
 8.
 
    https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01
-   ![Bulding the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/452fb7f9-53f0-420c-80ba-b1bd9afd695c)
+  
+  ![Bulding the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/c2f5511f-dc08-4e59-a307-5f374cd1c080)
    ![Wiring the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
 
 10. **Stabilizing the HAUV**: The next goal was to stabilize the HAUV without any unwanted rotation. I attempted to calculate counterforces based on MPU6050 gyro and acceleration data but encountered noise issues. I then switched to using the BNO055 for its fused data capabilities.  
