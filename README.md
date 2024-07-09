@@ -34,7 +34,10 @@ After successfully connecting to the agent, the esp32 should publish sensor data
 To check the data validity, use `ros2 topic echo /esp32/<name-of-sensor-topic>`.
 To send motor commands to the esp32 and control the ROV, run the following nodes:
 - **Guidance Node**: Handles vehicle navigation and control. (`ros2 run autopilot guidance_node`).
-- **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic (`ros2 run joy joy_node`);
+- **DVL Node**: received ethernet DVL data and publish commands on `/dvl/velocity_data` topic (`ros2 run autopilot dvl_node`).
+- **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic (`ros2 run joy joy_node`).
+
+-note: make sure that the DVL is configured to ping and send data on startup. If not, use the Teledyne Tool to send a `CS` command on the desired port.
 
 To receive camera data and send it to remote PC via TCP:
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
