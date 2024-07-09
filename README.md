@@ -40,22 +40,89 @@ To receive camera data and send it to remote PC via TCP:
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
 
 
+## Timeline and Work Progress
+The timeline documents the steps taken to develop and implement HAUV:
 
-https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323
+### Initial Planning and Model Characterization
+1. **Define and Characterize the Model**:
+   - Determine necessary sensors, operational depth, speed, and environment requirements.
 
+2. **Hardware and MCU Selection**:
+   - Opt for the ESP32 MCU due to its robust library support and community, and its ample PWM output pins, ensuring it can handle sensor data and motor commands efficiently.
 
+### Software Framework and Initial Testing
+1. **Software Installation**:
+   - Installed Ubuntu 20.04 Jammy, ROS2 Foxy, Arduino CLI, and Micro-ROS-Agent.
+   - Flashed the ESP32 with micro-ROS-Arduino and set up basic publisher-subscriber example code over serial communication.
+   
+   ![Initial Setup](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/83639ce9-3ba4-4aba-ab67-78f8ffdfe51a)
 
-https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6
+2. **Motor and PWM Integration**:
+   - Connected the T200 motors, lights, and a servo to the ESP32 PWM outputs.
+   - Sent publish commands from the UP board to verify the operation of multiple PWMs simultaneously, while also testing the ROS framework.
+   
+   ![PWM Verification](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/980f8fde-eba6-4f22-a2f8-1a80e6792300)
+
+3. **IMU Integration and Initial Movement Simulation**:
+   - Integrated the MPU6050 to measure HAUV gyro/acceleration data.
+   - Simulated ROV movement using motor speed and MPU acceleration values to calculate yaw, pitch, and roll.
+   
+   ![IMU Integration](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4f9a05bb-01a2-4b5e-82c6-5f0618d48bf6)
+
+### Structural Design and Motor Testing
+1. **First Setup with Basic Frame**:
+   - Attached 4 horizontal motors and 1 vertical motor to a wooden plate.
+   - Verified control in all directions.
+   
+   ![First Setup](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/550c35b5-7a5b-4ee3-b198-ca422e674704)
+
+2. **SolidWorks Design and Physical Build**:
+   - Designed a representative model in SolidWorks, positioning motors as intended.
+   - Built the model using aluminum profiles.
+   
+   ![SolidWorks Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6)
+   ![Model Build](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/452fb7f9-53f0-420c-80ba-b1bd9afd695c)
+   ![Wiring](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
+
+### Advanced Sensor Integration and Autonomous Control
+1. **Advanced IMU (BNO055) Integration**:
+   - Integrated the BNO055 for improved yaw, pitch, and roll compensation.
+   
+   ![BNO055 Integration](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
+
+2. **Pathfinder OEM DVL Integration**:
+   - Configured the DVL for precise underwater navigation.
+   - Tested DVL data accuracy in various scenarios.
+   
+   ![DVL Integration](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b4049c02-31d9-4bf4-a882-99dd7b1478cd)
+   ![DVL Depth Test](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/59ab2e93-2b21-4b62-8523-20c145469a1e)
+   ![DVL Data Accuracy](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
+
+### Final Testing and Simulation
+1. **Overall Testing and Autonomous Mode**:
+   - Conducted comprehensive tests to verify all control modes and sensor integrations.
+   
+   ![Final Test](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
+
+2. **RVIZ2 Simulation**:
+   - Ensured the simulation service was operational.
+   - Ran the guidance node and joystick node for simulation in RVIZ2.
+   
+   ![Simulation Example](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323)
 
 
 ### Running RVIZ2 simulation:
 - Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
 if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
 - Check that the motor_data can be seen. If not, check again for ROS_DOMAIN_ID matching.
+- Copy the rov_sim_pkg to rov_ws on the UP board.
+- build using `colcon build`
 - run `ros2 launch rov_sim_pkg rov.launch.py`
 - running joystick node using `ros2 run joy joy_node`
 - start playing.
 Simulation Example:
+
+https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323
 
 
 ## Software Configuration
