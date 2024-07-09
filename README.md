@@ -3,10 +3,6 @@
 **HAUV** is a compact underwater vehicle designed to enhance underwater exploration and object retrieval. 
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
-
-
-https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6
-
 ## Hardware
 ![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/8492f26f-86e4-493d-8b80-7392e1fb8db5)
 
@@ -26,21 +22,6 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 - Thrusters, lights, and pan-tilt servo receive control signals from the ESP32 WROOM, which is interfaced with the main PC via serial communication.
 - The ESP32 is also responsible for low-level sensor readings and actuator controls.
 
-## Software Configuration
-
-### On UP Board (Main PC)
-
-1. **ROS2 Foxy Installation**: Follow the official ROS2 documentation to install ROS2 Foxy on Ubuntu running on the UP board.
-2. **ROS Agent**: Install `micro-ros-agent` on the UP board to facilitate communication between ROS2 and micro-ROS on the ESP32.
-
-### On ESP32 (RT MCU)
-
-1. **Micro-ROS-Arduino Setup**: Install the micro-ROS library for Arduino on the ESP32 to enable ROS2 communication.
-https://github.com/micro-ROS/micro_ros_arduino
-You can find the latest version for micro-ros-arduino-foxy in the releases tab.
-
-3. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over SSH.
-
 ## Operating Code
 
 ### Running the agent:
@@ -59,6 +40,14 @@ To receive camera data and send it to remote PC via TCP:
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
 
 
+
+https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323
+
+
+
+https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4eb4419e-30ca-46c7-8fd0-c56b70a8d7e6
+
+
 ### Running RVIZ2 simulation:
 - Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
 if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
@@ -68,7 +57,23 @@ if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
 - start playing.
 Simulation Example:
 
-https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323
+
+## Software Configuration
+
+### On UP Board (Main PC)
+
+1. **ROS2 Foxy Installation**: Follow the official ROS2 documentation to install ROS2 Foxy on Ubuntu running on the UP board.
+2. **ROS Agent**: Install `micro-ros-agent` on the UP board to facilitate communication between ROS2 and micro-ROS on the ESP32.
+
+### On ESP32 (RT MCU)
+
+1. **Micro-ROS-Arduino Setup**: Install the micro-ROS library for Arduino on the ESP32 to enable ROS2 communication.
+https://github.com/micro-ROS/micro_ros_arduino
+You can find the latest version for micro-ros-arduino-foxy in the releases tab.
+
+3. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over UART via SSH.
+Don't forget to download the relevant libraries to the Arudino folder in the home directory of the UP board.
+
 
 ### Using the arduino CLI to flash the esp32:
 1. Go to main sketch directory:
