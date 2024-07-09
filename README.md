@@ -134,11 +134,15 @@ Don't forget to download the relevant libraries to the Arudino folder in the hom
 
 ### Using the arduino CLI to flash the esp32:
 1. Go to main sketch directory:
+   
 `cd ~/rov_ws/src/esp_sketches/rov_esp_main`
-2. Edit the desired code using nano or VScode IDE.
-3. Compile the code:
+
+3. Edit the desired code using nano or VScode IDE.
+4. Compile the code:
+   
 `arduino-cli compile --fqbn esp32:esp32:esp32da rov_esp_main.ino`
-4. Flash the code onto the esp32:
+5. Flash the code onto the esp32:
+   
 `arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32da rov_esp_main.ino`
 if upload failed, check that the USB port is not used by something else.
 
