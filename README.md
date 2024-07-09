@@ -96,11 +96,6 @@ To receive camera data and send it to remote PC via TCP:
    ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
 
 
-2. **RVIZ2 Simulation**:
-   - Ensured the simulation service was operational.
-   - Ran the guidance node and joystick node for simulation in RVIZ2.
-   
-   ![Simulation Example](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323)
 
 
 ### Running RVIZ2 simulation:
