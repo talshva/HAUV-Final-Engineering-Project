@@ -37,7 +37,11 @@ To send motor commands to the esp32 and control the ROV, run the following nodes
 - **DVL Node**: received ethernet DVL data and publish commands on `/dvl/velocity_data` topic (`ros2 run autopilot dvl_node`).
 - **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic (`ros2 run joy joy_node`).
 
--note: make sure that the DVL is configured to ping and send data on startup. If not, use the Teledyne Tool to send a `CS` command on the desired port.
+-note: 
+      Make sure that the DVL is configured to ping and send data on startup. If not, use the Teledyne Tool to send a `CS` command on the desired port.
+      To send commands to the DVL using the TRDI Toolz, connect to 192.168.168.102 with port 1033. The DVL is configured to send binary data to port 1034, and string data to port 1037 (Can be configured in 192.168.168.102 on a web             browser).
+      Make sure that the user settings are loaded with `CR` command before start pinging with the CS command. For more help type `?` in the Tool's Terminal, or look in in the datasheets.
+
 
 To receive camera data and send it to remote PC via TCP:
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
