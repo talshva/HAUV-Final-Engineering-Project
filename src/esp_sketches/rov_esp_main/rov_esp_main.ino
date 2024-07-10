@@ -19,6 +19,7 @@
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 #define RCCHECK(fn) ((fn) == RCL_RET_OK)
+
 #define INDICATOR_LED_PIN 0 // LED to indicate connection status
 #define DEBUG_TX_PIN 17 
 #define DEBUG_RX_PIN 16 
@@ -61,46 +62,52 @@ rclc_executor_t executor;
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
-rcl_timer_t timer;
-bool connected = false;
+rcl_timer_t sensor_timer;
+rcl_timer_t oled_timer;
+enum states {
+    WAITING_AGENT,
+    AGENT_AVAILABLE,
+    AGENT_CONNECTED,
+    AGENT_DISCONNECTED
+} state;
 
 //========================== OLED display ====================================================
 QwiicNarrowOLED myOLED;
 
 // 'ROV-LOGO', 128x32px
 const unsigned char myBitmap[] PROGMEM = {
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0xE0, 0xF0, 0xF0, 0xB8, 0x18, 0x18, 0x08,
-0x08, 0x0C, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
-0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
-0x04, 0x04, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44,
-0x44, 0x40, 0x40, 0x40, 0x40, 0x46, 0x46, 0x7E, 0x7E, 0x7E, 0xE6, 0xC0, 0x80, 0x80, 0x80, 0x84,
-0x84, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
-0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x0C,
-0x0C, 0x0C, 0x08, 0x18, 0x18, 0x38, 0xF0, 0xF0, 0xF0, 0xE0, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87, 0x83, 0x33, 0x7B, 0x78, 0x78, 0xCC, 0xCC,
-0xB4, 0xBC, 0xFC, 0xFC, 0xFE, 0xFE, 0xEE, 0xCE, 0xCE, 0xFE, 0xEE, 0xCE, 0xEE, 0xFE, 0xFE, 0xFC,
-0xF4, 0xB4, 0x84, 0xCC, 0xDC, 0x78, 0x78, 0x70, 0x20, 0xA0, 0xA0, 0xE0, 0xE0, 0xCC, 0xFE, 0xFF,
-0x7F, 0x73, 0xE1, 0xE1, 0xE0, 0xCC, 0xCE, 0xDE, 0xDB, 0x99, 0x99, 0xB9, 0xB9, 0xB9, 0xB9, 0xB9,
-0xB9, 0xB9, 0xBD, 0xBD, 0xBF, 0xBF, 0xBF, 0x9F, 0x9F, 0x9F, 0xDE, 0xDE, 0xCE, 0xCC, 0xC1, 0xE1,
-0xE3, 0xFF, 0xFF, 0x7E, 0xFE, 0xEC, 0xE0, 0xE0, 0xA0, 0xA0, 0x70, 0x78, 0x78, 0xF8, 0xCC, 0x84,
-0xB4, 0xFC, 0xFC, 0xFC, 0xFE, 0xEE, 0xCE, 0xEE, 0xFE, 0xCE, 0xCE, 0xEE, 0xFE, 0xFE, 0xFC, 0xF4,
-0xB4, 0x84, 0xCC, 0xFC, 0x78, 0x78, 0x33, 0x03, 0x87, 0x87, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE,
-0xFE, 0xFE, 0xFC, 0x1C, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x9D, 0x9D, 0x9D, 0x9D, 0x9C,
-0x9E, 0x9E, 0x9E, 0x9E, 0x9E, 0x9E, 0x1E, 0x1E, 0x3C, 0x3C, 0x3D, 0x3D, 0x3D, 0x7B, 0xFB, 0xFB,
-0xFB, 0xFB, 0xFF, 0x7F, 0x77, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x17, 0x97, 0x97, 0x97, 0x97,
-0x97, 0x97, 0x97, 0x97, 0x97, 0x97, 0x97, 0x17, 0x37, 0x37, 0x37, 0x37, 0x37, 0x77, 0x77, 0x77,
-0xFF, 0xFB, 0xFB, 0xDB, 0x9B, 0x19, 0x1D, 0x1D, 0x1D, 0x1C, 0x3E, 0x3E, 0x7E, 0x7E, 0xFE, 0xFE,
-0xFE, 0xFE, 0xFD, 0xFD, 0xFD, 0xFD, 0x7D, 0x3D, 0x3D, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x9C, 0x9C,
-0xDE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07, 0x07, 0x0F, 0x0F, 0x0F, 0x1F, 0x1F,
-0x1F, 0x1F, 0x1F, 0x10, 0x10, 0x30, 0x30, 0x30, 0x30, 0x30, 0x38, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C,
-0x3C, 0x38, 0x38, 0x38, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x36, 0x36, 0x36, 0x3E, 0x3F, 0x3F,
-0x3F, 0x3F, 0x3C, 0x3C, 0x38, 0x38, 0x38, 0x38, 0x30, 0x30, 0x33, 0x33, 0x33, 0x33, 0x37, 0x37,
-0x37, 0x37, 0x37, 0x37, 0x37, 0x33, 0x33, 0x33, 0x31, 0x30, 0x38, 0x38, 0x38, 0x38, 0x3C, 0x3C,
-0x3E, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3E, 0x3E, 0x3C, 0x3C, 0x38, 0x38, 0x30, 0x30, 0x30,
-0x31, 0x33, 0x33, 0x31, 0x30, 0x30, 0x30, 0x30, 0x38, 0x3C, 0x3C, 0x3E, 0x1E, 0x1F, 0x1F, 0x1F,
-0x1F, 0x1F, 0x1F, 0x1F, 0x0F, 0x0F, 0x0F, 0x07, 0x07, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0xE0, 0xF0, 0xF0, 0xB8, 0x18, 0x18, 0x08,
+    0x08, 0x0C, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
+    0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
+    0x04, 0x04, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44,
+    0x44, 0x40, 0x40, 0x40, 0x40, 0x46, 0x46, 0x7E, 0x7E, 0x7E, 0xE6, 0xC0, 0x80, 0x80, 0x80, 0x84,
+    0x84, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
+    0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x0C,
+    0x0C, 0x0C, 0x08, 0x18, 0x18, 0x38, 0xF0, 0xF0, 0xF0, 0xE0, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87, 0x83, 0x33, 0x7B, 0x78, 0x78, 0xCC, 0xCC, 0xB4, 0xBC,
+    0xFC, 0xFC, 0xFE, 0xFE, 0xEE, 0xCE, 0xCE, 0xFE, 0xEE, 0xCE, 0xEE, 0xFE, 0xFE, 0xFC, 0xF4, 0xB4,
+    0x84, 0xCC, 0xDC, 0x78, 0x78, 0x70, 0x20, 0xA0, 0xA0, 0xE0, 0xE0, 0xCC, 0xFE, 0xFF, 0x7F, 0x73,
+    0xE1, 0xE1, 0xE0, 0xCC, 0xCE, 0xDE, 0xDB, 0x99, 0x99, 0xB9, 0xB9, 0xB9, 0xB9, 0xB9, 0xB9, 0xB9,
+    0xBD, 0xBD, 0xBF, 0xBF, 0xBF, 0x9F, 0x9F, 0x9F, 0xDE, 0xDE, 0xCE, 0xCC, 0xC1, 0xE1, 0xE3, 0xFF,
+    0xFF, 0x7E, 0xFE, 0xEC, 0xE0, 0xE0, 0xA0, 0xA0, 0x70, 0x78, 0x78, 0xF8, 0xCC, 0x84, 0xB4, 0xFC,
+    0xFC, 0xFC, 0xFE, 0xEE, 0xCE, 0xEE, 0xFE, 0xCE, 0xCE, 0xEE, 0xFE, 0xFE, 0xFC, 0xF4, 0xB4, 0x84,
+    0xCC, 0xFC, 0x78, 0x78, 0x33, 0x03, 0x87, 0x87, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE,
+    0xFE, 0xFE, 0xFC, 0x1C, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x9D, 0x9D, 0x9D, 0x9D, 0x9C,
+    0x9E, 0x9E, 0x9E, 0x9E, 0x9E, 0x9E, 0x1E, 0x1E, 0x3C, 0x3C, 0x3D, 0x3D, 0x3D, 0x7B, 0xFB, 0xFB,
+    0xFB, 0xFB, 0xFF, 0x7F, 0x77, 0x37, 0x37, 0x37, 0x37, 0x37, 0x37, 0x17, 0x97, 0x97, 0x97, 0x97,
+    0x97, 0x97, 0x97, 0x97, 0x97, 0x97, 0x97, 0x17, 0x37, 0x37, 0x37, 0x37, 0x37, 0x77, 0x77, 0x77,
+    0xFF, 0xFB, 0xFB, 0xDB, 0x9B, 0x19, 0x1D, 0x1D, 0x1D, 0x1C, 0x3E, 0x3E, 0x7E, 0x7E, 0xFE, 0xFE,
+    0xFE, 0xFE, 0xFD, 0xFD, 0xFD, 0xFD, 0x7D, 0x3D, 0x3D, 0x1D, 0x1D, 0x1D, 0x1D, 0x1D, 0x9C, 0x9C,
+    0xDE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07, 0x07, 0x0F, 0x0F, 0x0F, 0x1F, 0x1F, 0x1F, 0x1F,
+    0x1F, 0x10, 0x10, 0x30, 0x30, 0x30, 0x30, 0x30, 0x38, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x3C, 0x38,
+    0x38, 0x38, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x36, 0x36, 0x36, 0x3E, 0x3F, 0x3F, 0x3F, 0x3F,
+    0x3C, 0x3C, 0x38, 0x38, 0x38, 0x38, 0x30, 0x30, 0x33, 0x33, 0x33, 0x33, 0x37, 0x37, 0x37, 0x37,
+    0x37, 0x37, 0x37, 0x33, 0x33, 0x33, 0x31, 0x30, 0x38, 0x38, 0x38, 0x38, 0x3C, 0x3C, 0x3E, 0x3F,
+    0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3E, 0x3E, 0x3C, 0x3C, 0x38, 0x38, 0x30, 0x30, 0x30, 0x31, 0x33,
+    0x33, 0x31, 0x30, 0x30, 0x30, 0x30, 0x38, 0x3C, 0x3C, 0x3E, 0x1E, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F,
+    0x1F, 0x1F, 0x0F, 0x0F, 0x0F, 0x07, 0x07, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 //========================== Subscribers Callbacks ==========================================
@@ -114,7 +121,7 @@ void subscription_callback_motors(const void *msgin) {
     int motor6_val = static_cast<int>(msg->angular.z);
 
     if (motor1_val >= ESC_MIN && motor1_val <= ESC_MAX) {
-        esc1.writeMicroseconds(motor1_val); // Send PWM signal to ESC/motor 1.s
+        esc1.writeMicroseconds(motor1_val); // Send PWM signal to ESC/motor 1.
     }
     if (motor2_val >= ESC_MIN && motor2_val <= ESC_MAX) {
         esc2.writeMicroseconds(motor2_val); // Send PWM signal to ESC/motor 2.
@@ -157,7 +164,7 @@ void sensors_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
     // bar100.read();
     bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
     RCLC_UNUSED(last_call_time);
-    if (timer != NULL && connected) {
+    if (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) {
         bno055_msg.linear.x = static_cast<double>(orientationData.orientation.x);
         bno055_msg.linear.y = static_cast<double>(orientationData.orientation.y);
         bno055_msg.linear.z = static_cast<double>(orientationData.orientation.z);
@@ -165,7 +172,7 @@ void sensors_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
         bno055_msg.angular.y = 0.0;
         bno055_msg.angular.z = 0.0;
         if (!RCCHECK(rcl_publish(&bno055_pub, &bno055_msg, NULL))) {
-            connected = false; // Set connected to false if publish fails
+            DebugSerial.println("Failed publishing bno055 message");
         }
         // bar100_msg.linear.x = static_cast<double>(bar100.pressure()); //[mbar]
         // bar100_msg.linear.y = static_cast<double>(bar100.temperature()); //[degC]
@@ -174,89 +181,35 @@ void sensors_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
         // bar100_msg.angular.y = 0.0;
         // bar100_msg.angular.z = 0.0;
         // if (!RCCHECK(rcl_publish(&bar100_pub, &bar100_msg, NULL))) {
-        //     connected = false; // Set connected to false if publish fails
+        //     DebugSerial.println("Failed publishing bar100 message");
         // }
-
-        // Update OLED display
-        myOLED.setCursor(0, 0); // Set cursor to top-left corner
-        myOLED.print("Yaw: ");
-        myOLED.print(orientationData.orientation.x, 2); // Print yaw with 2 decimal places
-        myOLED.setCursor(0, 10); // Move cursor to the next line
-        myOLED.print("Pitch: ");
-        myOLED.print(orientationData.orientation.y, 2); // Print pitch with 2 decimal places
-        myOLED.setCursor(0, 20); // Move cursor to the next line
-        myOLED.print("Roll: ");
-        myOLED.print(orientationData.orientation.z, 2); // Print roll with 2 decimal places
-        myOLED.display(); // Update the display
-        myOLED.erase();
     }
 }
 
-bool reconnect_to_agent() {
-    cleanup_ros_entities();
-    digitalWrite(INDICATOR_LED_PIN, LOW); // Indicate successful connection
-    delay(1000); // Wait a bit before trying to reconnect
-    digitalWrite(INDICATOR_LED_PIN, HIGH); // Indicate successful connection
-    set_microros_transports();
-    allocator = rcl_get_default_allocator();
-    if (!RCCHECK(rclc_support_init(&support, 0, NULL, &allocator))) {
-        DebugSerial.println("Failed to reinitialize support.");
-        return false;
+void oled_timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
+    RCLC_UNUSED(last_call_time);
+    if (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) {
+    // Update OLED display
+    myOLED.setCursor(0, 0); // Set cursor to top-left corner
+    myOLED.print("Yaw: ");
+    myOLED.print(bno055_msg.linear.x, 2); // Print yaw with 2 decimal places
+    myOLED.setCursor(0, 10); // Move cursor to the next line
+    myOLED.print("Pitch: ");
+    myOLED.print(bno055_msg.linear.y, 2); // Print pitch with 2 decimal places
+    myOLED.setCursor(0, 20); // Move cursor to the next line
+    myOLED.print("Roll: ");
+    myOLED.print(bno055_msg.linear.z, 2); // Print roll with 2 decimal places
+    myOLED.display(); // Update the display
+    myOLED.erase();
     }
-    if (!RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support))) {
-        DebugSerial.println("Failed to reinitialize node.");
-        return false;
-    }
-    if (!RCCHECK(rclc_publisher_init_default(&bno055_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bno055_data"))) {
-        DebugSerial.println("Failed to reinitialize bno055_pub.");
-        return false;
-    }
-    if (!RCCHECK(rclc_publisher_init_default(&bar100_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bar100_data"))) {
-        DebugSerial.println("Failed to reinitialize bar100_pub.");
-        return false;
-    }
-    if (!RCCHECK(rclc_timer_init_default(&timer, &support, RCL_MS_TO_NS(50), sensors_timer_callback))) {
-        DebugSerial.println("Failed to reinitialize timer.");
-        return false;
-    }
-    if (!RCCHECK(rclc_executor_init(&executor, &support.context, 5, &allocator))) {
-        DebugSerial.println("Failed to reinitialize executor.");
-        return false;
-    }
-    if (!RCCHECK(rclc_executor_add_timer(&executor, &timer))) {
-        DebugSerial.println("Failed to add timer to executor.");
-        return false;
-    }
-    if (!RCCHECK(rclc_subscription_init_default(&motors_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/motor_data"))) {
-        DebugSerial.println("Failed to reinitialize motors_sub.");
-        return false;
-    }
-    if (!RCCHECK(rclc_executor_add_subscription(&executor, &motors_sub, &motors_msg, subscription_callback_motors, ON_NEW_DATA))) {
-        DebugSerial.println("Failed to add motors_sub to executor.");
-        return false;
-    }
-    if (!RCCHECK(rclc_subscription_init_default(&lights_servo_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/lights_servo_data"))) {
-        DebugSerial.println("Failed to reinitialize lights_servo_sub.");
-        return false;
-    }
-    if (!RCCHECK(rclc_executor_add_subscription(&executor, &lights_servo_sub, &lights_servo_msg, subscription_callback_lights_servo, ON_NEW_DATA))) {
-        DebugSerial.println("Failed to add lights_servo_sub to executor.");
-        return false;
-    }
-    DebugSerial.println("Reconnection successful.");
-    return true;
 }
 
-bool check_connection() {
-    rcl_ret_t ret = rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
-    if (ret != RCL_RET_OK) {
-        DebugSerial.println("Connection check failed.");
-        return false;
-    }
-    return true;
-}
 
 void cleanup_ros_entities() {
+    rmw_context_t * rmw_context = rcl_context_get_rmw_context(&support.context);
+    (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
+    rcl_timer_fini(&sensor_timer);
+    rcl_timer_fini(&oled_timer);
     rcl_publisher_fini(&bno055_pub, &node);
     rcl_publisher_fini(&bar100_pub, &node);
     rcl_subscription_fini(&motors_sub, &node);
@@ -269,27 +222,32 @@ void cleanup_ros_entities() {
 bool setup_node_and_entities() {
     set_microros_transports();
     allocator = rcl_get_default_allocator();
-    if (!RCCHECK(rclc_support_init(&support, 0, NULL, &allocator))) return false;
-    if (!RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support))) return false;
-    if (!RCCHECK(rclc_publisher_init_default(&bno055_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bno055_data"))) return false;
-    if (!RCCHECK(rclc_publisher_init_default(&bar100_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bar100_data"))) return false;
-    if (!RCCHECK(rclc_timer_init_default(&timer, &support, RCL_MS_TO_NS(50), sensors_timer_callback))) return false;
-    if (!RCCHECK(rclc_executor_init(&executor, &support.context, 7, &allocator))) return false;
-    if (!RCCHECK(rclc_executor_add_timer(&executor, &timer))) return false;
+    DebugSerial.println("Checking rclc_support_init");
+    RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
+    DebugSerial.println("Checking rclc_node_init_default");
+    RCCHECK(rclc_node_init_default(&node, "esp32_node", "", &support));
+    DebugSerial.println("Checking rclc_publisher_init_default");
+    RCCHECK(rclc_publisher_init_default(&bno055_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bno055_data"));
+    DebugSerial.println("Checking rclc_publisher_init_default");
+    RCCHECK(rclc_publisher_init_default(&bar100_pub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/esp32/bar100_data"));
+    DebugSerial.println("Checking rclc_timer_init_default");
+    RCCHECK(rclc_timer_init_default(&sensor_timer, &support, RCL_MS_TO_NS(50), sensors_timer_callback));
+    RCCHECK(rclc_timer_init_default(&oled_timer, &support, RCL_MS_TO_NS(50), oled_timer_callback));
+    DebugSerial.println("Checking rclc_executor_init");
+    RCCHECK(rclc_executor_init(&executor, &support.context, 6, &allocator));
+    DebugSerial.println("Checking rclc_executor_add_timer");
+    RCCHECK(rclc_executor_add_timer(&executor, &sensor_timer));
+    RCCHECK(rclc_executor_add_timer(&executor, &oled_timer));
     // Motor Data Subscriber
-    RCCHECK(rclc_subscription_init_default(
-        &motors_sub, &node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/motor_data"));
-    RCCHECK(rclc_executor_add_subscription(
-        &executor, &motors_sub, &motors_msg,
-        subscription_callback_motors, ON_NEW_DATA));
+    DebugSerial.println("Checking rclc_subscription_init_default");
+    RCCHECK(rclc_subscription_init_default(&motors_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/motor_data"));
+    DebugSerial.println("Checking rclc_executor_add_subscription");
+    RCCHECK(rclc_executor_add_subscription(&executor, &motors_sub, &motors_msg, subscription_callback_motors, ON_NEW_DATA));
     // Light/servo Subscriber
-    RCCHECK(rclc_subscription_init_default(
-        &lights_servo_sub, &node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/lights_servo_data"));
-    RCCHECK(rclc_executor_add_subscription(
-        &executor, &lights_servo_sub, &lights_servo_msg,
-        subscription_callback_lights_servo, ON_NEW_DATA));
+    DebugSerial.println("Checking rclc_subscription_init_default");
+    RCCHECK(rclc_subscription_init_default(&lights_servo_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Vector3), "/lights_servo_data"));
+    DebugSerial.println("Checking rclc_executor_add_subscription");
+    RCCHECK(rclc_executor_add_subscription(&executor, &lights_servo_sub, &lights_servo_msg, subscription_callback_lights_servo, ON_NEW_DATA));
     return true;
 }
 
@@ -301,10 +259,16 @@ void showBitmap() {
     myOLED.erase();
 }
 
-
 void setup() {
+    set_microros_transports();
     pinMode(INDICATOR_LED_PIN, OUTPUT);
     digitalWrite(INDICATOR_LED_PIN, HIGH);
+    state = WAITING_AGENT;
+    // Setup debugging serial
+    DebugSerial.begin(115200, SERIAL_8N1, DEBUG_RX_PIN, DEBUG_TX_PIN);
+    // Setup main Agent Serial
+    MainSerial.begin(115200);
+    DebugSerial.println("Starting setup...");
     // Attach motor controllers:
     esc1.attach(esc_pins[0]);
     esc2.attach(esc_pins[1]);
@@ -312,7 +276,6 @@ void setup() {
     esc4.attach(esc_pins[3]);
     esc5.attach(esc_pins[4]);
     esc6.attach(esc_pins[5]);
-
     // Attach lights:
     light_single.attach(light_pins[0]);
     light_couple.attach(light_pins[1]);
@@ -329,37 +292,28 @@ void setup() {
     light_couple.writeMicroseconds(1100);
     cam_servo.write(90);
 
-    // Setup debugging serial
-    DebugSerial.begin(115200, SERIAL_8N1, DEBUG_RX_PIN, DEBUG_TX_PIN);
-    // Setup main Agent Serial
-    MainSerial.begin(115200);
-
+    // Hardware Initialize:
     // bar100.init();
     // bar100.setFluidDensity(997); // kg/m^3 (freshwater, 1029 for seawater)
 
     // if (bar100.isInitialized()) {
     //     DebugSerial.println("Bar100 is connected.");
     // } else {
-    //     DebugSerial.println("Bar100 is not connected.");
+    //     DebugSerial.println("Bar100 failed to initialize.");
     // }
-
     if (!bno.begin()) {
         DebugSerial.println("Failed to find BNO055 chip.");
     } else {
         bno.setExtCrystalUse(true);
     }
-
     // Initialize the OLED display
     if (myOLED.begin() == false) {
         DebugSerial.println("OLED begin failed.");
     }
     else{
         DebugSerial.println("OLED begin success");
+        showBitmap();
     }
-
-    // Display bitmap at startup
-    showBitmap();
-
     // if (!mpu.begin()) {
     //     DebugSerial.println("Failed to find MPU6050 chip");
     // } else {
@@ -367,27 +321,42 @@ void setup() {
     //     mpu.setGyroRange(MPU6050_RANGE_500_DEG);
     //     mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
     // }
-
-    connected = setup_node_and_entities();
+    DebugSerial.println("Finished Setup.");
+    DebugSerial.println("Waiting for Agent...");
 }
 
 void loop() {
-        // Check connection periodically
-    if (rmw_uros_ping_agent(1000, 1) != RMW_RET_OK) {
-        connected = false;
-        DebugSerial.println("Agent not reachable. Attempting to reconnect...");
+    switch (state) {
+        case WAITING_AGENT:
+            if (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) {
+                state = AGENT_AVAILABLE;
+                DebugSerial.println("Found Agent!");
+            }
+            break;
+        case AGENT_AVAILABLE:
+            if (setup_node_and_entities()) {
+                state = AGENT_CONNECTED;
+                DebugSerial.println("Connected to Agent!");
+            } else {
+                cleanup_ros_entities();
+                state = WAITING_AGENT;
+            }
+            break;
+        case AGENT_CONNECTED:
+            digitalWrite(INDICATOR_LED_PIN, HIGH);
+            if (RMW_RET_OK == rmw_uros_ping_agent(100, 1)) {
+                rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+            } else {
+                DebugSerial.println("Disconnected from Agent");
+                state = AGENT_DISCONNECTED;
+            }
+            break;
+        case AGENT_DISCONNECTED:
+            digitalWrite(INDICATOR_LED_PIN, LOW);
+            cleanup_ros_entities();
+            state = WAITING_AGENT;
+            break;
+        default:
+            break;
     }
-
-    if (!connected || !check_connection()) {
-        DebugSerial.println("Connection lost, attempting to reconnect...");
-        connected = reconnect_to_agent();  // Attempt to reconnect
-        if (connected) {
-            DebugSerial.println("Reconnected successfully.");
-        } else {
-            DebugSerial.println("Reconnection failed.");
-        }
-    }
-
-    delay(10); // Delay to avoid running the loop too fast
 }
-
