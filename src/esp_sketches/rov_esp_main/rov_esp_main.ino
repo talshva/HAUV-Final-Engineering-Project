@@ -44,7 +44,7 @@ HardwareSerial DebugSerial(1); // Use UART1 for debugging
 
 int esc_pins[] = {27, 26, 25, 33, 32, 14};
 int light_pins[] = {18, 19}; // light_single, light_couple
-int cam_servo_pin = 12;
+int cam_servo_pin = 13;
 
 //========================== Publishers definitions =========================================
 rcl_publisher_t bar100_pub;
