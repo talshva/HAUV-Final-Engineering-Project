@@ -7,6 +7,7 @@ import cv2
 class CameraNode(Node):
     def __init__(self):
         super().__init__('camera_node')
+        self.get_logger().info(f"Camera Node has been started!")
         self.publisher_ = self.create_publisher(Image, 'camera_image', 10)
         self.timer_period = 0.1  # seconds
         self.timer = self.create_timer(self.timer_period, self.timer_callback)

@@ -8,8 +8,8 @@ import math
 class GuidanceNode(Node):
     def __init__(self):
         super().__init__('guidance_node')
-        self.get_logger().info("Started Guidance Node!")
-
+        self.get_logger().info(f"Guidance Node has been started!")
+        
         # Publishers
         self.motors_publisher = self.create_publisher(Twist, '/motor_data', 10)
         self.lights_publisher = self.create_publisher(Vector3, '/lights_servo_data', 10)
@@ -172,8 +172,8 @@ class GuidanceNode(Node):
         yaw_adjustment = int((400/(15*math.pi)) * self.kp_yaw * yaw_error + self.kd_yaw * current_yaw_rad)
         pitch_adjustment = int((400/(15*math.pi)) * self.kp_pitch * pitch_error + self.kd_pitch * current_pitch_rad)
 
-        self.get_logger().info(f"yaw_error: {yaw_error}")
-        self.get_logger().info(f"yaw_adjustment: {yaw_adjustment}")
+        # self.get_logger().info(f"yaw_error: {yaw_error}")
+        # self.get_logger().info(f"yaw_adjustment: {yaw_adjustment}")
 
         # Use DVL velocities to correct the speeds
         vx = self.dvl_velocities["vx"]*1000
