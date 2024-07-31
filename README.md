@@ -24,6 +24,8 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 
 ## Operating Code
 
+In general, all nessessary nodes (including the agent) should be automaticaly run on startup. For manual operation:
+
 ### Running the agent:
 On the UP board, run:
 `ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
@@ -43,7 +45,7 @@ To send motor commands to the esp32 and control the ROV, run the following nodes
       Make sure that the user settings are loaded with `CR` command before start pinging with the CS command. For more help type `?` in the Tool's Terminal, or look in in the datasheets.
 
 
-To receive camera data and send it to remote PC via TCP:
+To receive camera data (sending Image messages as a ros2 topic):
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
 
 
@@ -159,16 +161,16 @@ ros2 topic list
 ros2 topic echo /name_of_topic
 
 ```
-### future Implementation
-After getting everything to work, we ideally prefer to run all nodes on UP startup, using a system service.
+### Automatic Startup Implementation
+In general, we ideally prefer to run all nodes on UP startup, using a system service.
 These are some troubleshooting commands for the service:
 ``` bash
 sudo systemctl daemon-reload
-sudo systemctl start ros2_launch.service
-sudo systemctl stop ros2_launch.service
-sudo systemctl restart ros2_launch.service
-sudo systemctl status ros2_launch.service
-sudo journalctl -u ros2_launch.service -f
+sudo systemctl start rov_nodes.service
+sudo systemctl stop rov_nodes.service
+sudo systemctl restart rov_nodes.service
+sudo systemctl status rov_nodes.service
+sudo journalctl -u rov_nodes.service -f
 ```
 ### Additional Technical Details:
 - kill nodes directly using `killall guidance_node`
