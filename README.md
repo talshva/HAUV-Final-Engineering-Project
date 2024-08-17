@@ -19,7 +19,14 @@ All necessary nodes, including the agent, are designed to start automatically up
 - Make sure that the esp32 is connected to the UP Board using the micro-usb cable.
 - On the UP board, run:
   
-> ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0
+`ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
+<details>
+<summary>Click to expand!</summary>
+
+This is the hidden content.
+
+</details>
+
 
 After the agent is running, reset the esp32 to let it automatically connect to the agent (You will hear all motors go "DUDU-DU DU DUUUUUU").
 
