@@ -4,6 +4,10 @@
 **HAUV** is a compact underwater vehicle designed to enhance underwater exploration. 
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
+See the final project report here:
+
+[fin-2024-038.pdf](https://github.com/user-attachments/files/16645635/fin-2024-038.pdf)
+
 
 <details>
 <summary>Prerequisites</summary>
