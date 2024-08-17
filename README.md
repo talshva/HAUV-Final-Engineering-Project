@@ -215,13 +215,11 @@ or simply download and install mobaxterm for better user experience..
    This was followed by designing a more representative model in SolidWorks, ensuring all motors were located in the desired positions.
    I used aluminum profiles found in the lab, and built a SolidWorks model, which was then constructed in the lab.
 
-   SolidWorks Model:
-   [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01)
+   SolidWorks Model: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01)
 
-   [Bringing The Model to life](<https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/c2f5511f-dc08-4e59-a307-5f374cd1c080>)
+   Bringing The Model to life: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/c2f5511f-dc08-4e59-a307-5f374cd1c080)
 
-   [Wiring the Model](<https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2>)
-
+   Wiring the Model: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
 
 
 9. **Stabilizing the HAUV**:
@@ -230,28 +228,28 @@ or simply download and install mobaxterm for better user experience..
    I then switched to using the BNO055 for its fused data capabilities.
 
     
-   [Using the mpu6050](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)
+   Using the mpu6050: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)
    
-   [Using the bno055](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
+   Using the bno055: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
 
 10. **Integrating the Pathfinder OEM DVL**:
 
    To address x, y, and z velocities, I integrated the Pathfinder OEM DVL by Teledyne. After wiring the DVL for power and communication, I configured, calibrated, and received its data over the Ethernet protocol. 
    Initial tests showed promising accuracy in mm resolution for x and y coordinates.
     
-   ![DVL Sensor](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b4049c02-31d9-4bf4-a882-99dd7b1478cd)  
+   DVL Sensor: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b4049c02-31d9-4bf4-a882-99dd7b1478cd)  
 
-   ![DVL Depth Test using a bucket](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/59ab2e93-2b21-4b62-8523-20c145469a1e)  
+   DVL Depth Test using a bucket: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/59ab2e93-2b21-4b62-8523-20c145469a1e)  
 
-   ![DVL Real-time Location Test](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/039a02d6-3f1c-48c4-8025-09734b80c4e4)  
+   DVL Real-time Location Test: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/039a02d6-3f1c-48c4-8025-09734b80c4e4)  
 
-   ![Test Results](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
+   Test Results: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
 
 11. **Final Overall Test**:
 
    The final overall test involved checking the self-control mode, switching to autonomous mode, and verifying the BNO055 compensation for yaw, pitch, and roll, and the DVL compensation for x, y, and z movements.  
    
-   ![Final Test](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
+   Final Test: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
    
    ![Testing the Camera](https://github.com/user-attachments/assets/a61eaffa-4ed9-42ba-8984-1a3d4e673387)
 
