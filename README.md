@@ -1,5 +1,6 @@
 # HAUV - Hovering Autonomous Underwater Vehicle
 
+![HAUV Logo](https://github.com/user-attachments/assets/fed5e95b-e820-41f9-89da-a8d72eabe379)
 
 
 
