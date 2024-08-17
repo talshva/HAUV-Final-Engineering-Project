@@ -140,6 +140,11 @@ publishs motors and lights commands on `/motor_data and` `/lights_servo_data` to
 <details>
 <summary>Troubleshooting and useful information </summary>
 
+### DVL
+
+To install Teledyne Tool, download, mount and install the dvl.iso file from [this link](https://drive.google.com/drive/folders/1dG6kP1n0Qq8FaZ62429nmEa0FNDRZFCz?usp=sharing).
+In the link you can find the DVL datasheets and configuration settings.
+
 ### Typical Commands for Troubleshooting
 1. UP:
 ```bash
