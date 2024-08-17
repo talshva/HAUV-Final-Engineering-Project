@@ -271,5 +271,5 @@ Simulation Example:  [link](https://github.com/talshva/HAUV-Final-Engineering-Pr
 
 ## Acknowledgments
 
-- Prof. Hugo Guterman, project supervisor.
+- Prof. Hugo Guterman, project advisor.
 - Ben-Gurion University's, Electrical and Computer Engineering Department.
