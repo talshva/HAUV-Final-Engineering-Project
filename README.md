@@ -1,7 +1,6 @@
 # HAUV - Hovering Autonomous Underwater Vehicle
 
-![HAUV Logo](https://github.com/user-attachments/assets/fed5e95b-e820-41f9-89da-a8d72eabe379)
-
+![HAUV Logo](https://github.com/user-attachments/assets/c04aa1a3-2150-4c63-8d7c-6ad1716fded0)
 
 
 **HAUV** is a compact underwater vehicle designed to enhance underwater exploration and object retrieval. 
