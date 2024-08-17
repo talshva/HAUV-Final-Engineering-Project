@@ -35,7 +35,7 @@ To receive camera data (sending Image messages as a ros2 topic):
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
 
 
-## Software Configuration
+## Preliminary Software Configuration
 
 ### On UP Board (Main PC)
 
