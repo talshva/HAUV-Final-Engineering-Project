@@ -87,12 +87,10 @@ Below is the system flowchart:
 
 ## For manual operation:
 
-
 Before proceeding, ensure the following:
 
 - Set your computer's IP address to `192.168.168.100`.
->Note: The UP board is configured with IP `192.168.168.101`.
->Note: The Doppler Velocity Logger (DVL) is set to IP `192.168.168.102`, as configured here:
+>Note: The UP board is configured with IP `192.168.168.101`, The Doppler Velocity Logger (DVL) is set to IP `192.168.168.102`, as configured here:
 [DVL settings](https://github.com/user-attachments/assets/a2fb2aa6-8320-4a41-9a43-7b12541674ba)
 
 
@@ -113,6 +111,8 @@ To check the data validity, use:
 
 `ros2 topic echo /esp32/<name-of-sensor-topic>`.
 
+> For example /esp32/bar100_data, /esp32/bno055_data
+
 To send motor commands to the esp32 and control the ROV, run the following nodes:
 
 - **Guidance Node**: Handles vehicle navigation and control, 
@@ -121,16 +121,16 @@ publishs motors and lights commands on `/motor_data and` `/lights_servo_data` to
 - **DVL Node**: received ethernet DVL data and publish commands on `/dvl/velocity_data` topic.
 > ros2 run autopilot dvl_node
 - **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic.
->ros2 run joy joy_node
+> ros2 run joy joy_node
+- **Camera Node**: Manages the camera system for real-time video feedback and publishes to the `/camera_image` topic.
+> ros2 run camera_pkg camera_node
 
--note: 
-      Make sure that the DVL is configured to ping and send data on startup. If not, use the Teledyne Tool to send a `CS` command on the desired port.
-      To send commands to the DVL using the TRDI Toolz, connect to 192.168.168.102 with port 1033. The DVL is configured to send binary data to port 1034, and string data to port 1037 (Can be configured in 192.168.168.102 on a web             browser).
-      Make sure that the user settings are loaded with `CR` command before start pinging with the CS command. For more help type `?` in the Tool's Terminal, or look in in the datasheets.
-
-
-To receive camera data (sending Image messages as a ros2 topic):
-- **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
+- note: 
+   Make sure that the DVL is configured to ping and send data on startup. If not, download the Teledyne Tool from the "Useful information" section, and use it to send a `CS` command on the desired port.
+   
+   To send commands to the DVL using the TRDI Toolz, connect to 192.168.168.102 with port 1033. The DVL is configured to send binary data to port 1034, and string data to port 1037 (Can be configured in 192.168.168.102 on a web             browser).
+   
+   Make sure that the user settings are loaded with `CR` command before start pinging with the CS command. For more help type `?` in the Tool's Terminal, or look in in the datasheets.
 
 </details>
 
