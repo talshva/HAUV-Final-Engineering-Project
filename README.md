@@ -5,7 +5,7 @@
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
 <details>
-##<summary>Operating Code</summary>
+<summary>Operating Code</summary>
 
 All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
 
@@ -40,7 +40,8 @@ To receive camera data (sending Image messages as a ros2 topic):
 
 </details>
 
-## Preliminary Software Configuration
+<details>
+<summary>Preliminary Software Configuration</summary>
 
 ### On UP Board (Main PC)
 
@@ -73,6 +74,11 @@ Don't forget to download the relevant libraries to the Arudino folder in the hom
 
 if upload failed, check that the USB port is not used by something else.
 
+</details>
+
+<details>
+<summary>Troubleshooting and useful information </summary>
+
 ### Typical Commands for Troubleshooting
 1. UP:
 ```bash
@@ -101,10 +107,10 @@ if screen isn't terminating, kill manually by:
 `screen -ls` (to get the session id)
 `screen -XS <session-id> quit`
 
+</details>
 
-
-
-## Hardware
+<details>
+<summary>Hardware</summary>
 
 ![Components](https://github.com/user-attachments/assets/38843e3d-361e-4e97-9a5d-140aa9777527)
 
@@ -127,7 +133,10 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 - Thrusters, lights, and pan-tilt servo receive control signals from the ESP32 WROOM, which is interfaced with the main PC via serial communication.
 - The ESP32 is also responsible for low-level sensor readings and actuator controls.
 
-## Timeline and Work Progress
+</details>
+
+<details>
+<summary>Timeline and Work Progress</summary>
 
 1. **Defining and Characterizing the Model**: The initial step was to define and characterize the model. This involved determining the necessary sensors and the conditions in which the HAUV would operate, including depth, speed, and environment.
 
@@ -185,8 +194,11 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 
 ![tests+cam](https://github.com/user-attachments/assets/a61eaffa-4ed9-42ba-8984-1a3d4e673387)
 
+</details>
 
-### Running RVIZ2 simulation:
+<details>
+<summary>Running Rviz2 Simulation</summary>
+
 - Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
 if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
 - Check that the motor_data can be seen. If not, check again for ROS_DOMAIN_ID matching.
@@ -199,9 +211,8 @@ Simulation Example:
 
 https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323
 
+</details>
 
-
-  
 
 ## Acknowledgments
 
