@@ -81,7 +81,7 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 
 All necessary nodes, including the agent, are designed to start automatically upon system boot. 
 
---- Below is the system flowchart:
+Below is the system flowchart:
 
 ![System Flowchart](https://github.com/user-attachments/assets/70fa5e70-175d-4226-b3eb-0edac63af185)
 
@@ -95,13 +95,24 @@ All necessary nodes, including the agent, are designed to start automatically up
 
 After the agent is running, reset the esp32 to let it automatically connect to the agent (You will hear all motors go "DUDU-DU DU DUUUUUU").
 
+You will also notice the esp32 topics printed on the terminal running the agent.
+
 ### ROS2 Nodes on UP Board
 After successfully connecting to the agent, the esp32 should publish sensor data. 
-To check the data validity, use `ros2 topic echo /esp32/<name-of-sensor-topic>`.
+
+To check the data validity, use:
+
+`ros2 topic echo /esp32/<name-of-sensor-topic>`.
+
 To send motor commands to the esp32 and control the ROV, run the following nodes:
-- **Guidance Node**: Handles vehicle navigation and control. (`ros2 run autopilot guidance_node`).
-- **DVL Node**: received ethernet DVL data and publish commands on `/dvl/velocity_data` topic (`ros2 run autopilot dvl_node`).
-- **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic (`ros2 run joy joy_node`).
+
+- **Guidance Node**: Handles vehicle navigation and control, 
+publishs motors and lights commands on `/motor_data and` `/lights_servo_data` topics.
+> ros2 run autopilot guidance_node
+- **DVL Node**: received ethernet DVL data and publish commands on `/dvl/velocity_data` topic.
+> ros2 run autopilot dvl_node
+- **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic.
+>ros2 run joy joy_node
 
 -note: 
       Make sure that the DVL is configured to ping and send data on startup. If not, use the Teledyne Tool to send a `CS` command on the desired port.
