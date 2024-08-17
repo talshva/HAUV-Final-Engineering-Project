@@ -247,10 +247,12 @@ or simply download and install mobaxterm for better user experience..
 10. **Final Overall Test**:
 
    The final overall test involved checking the self-control mode, switching to autonomous mode, and verifying the BNO055 compensation for yaw, pitch, and roll, and the DVL compensation for x, y, and z movements.  
-   
    Final Test: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
-   
+
+   Motors respond to DVL: [link](https://github.com/user-attachments/assets/333eac3c-9ecc-4d19-b8ef-bbaf6f31b9d0)
+
    ![Testing the Camera](https://github.com/user-attachments/assets/a61eaffa-4ed9-42ba-8984-1a3d4e673387)
+
 
 </details>
 
@@ -265,9 +267,7 @@ if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
 - run `ros2 launch rov_sim_pkg rov.launch.py`
 - running joystick node using `ros2 run joy joy_node`
 - start playing.
-Simulation Example:
-
-https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323
+Simulation Example:  [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323)
 
 </details>
 
