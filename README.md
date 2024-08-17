@@ -1,13 +1,15 @@
-# HAUV - Hovering Autonomous Underwater Vehicle
+<details>
+<summary>HAUV - Hovering Autonomous Underwater Vehicle</summary>
 
 ![HAUV Logo](https://github.com/user-attachments/assets/c04aa1a3-2150-4c63-8d7c-6ad1716fded0)
-
 
 **HAUV** is a compact underwater vehicle designed to enhance underwater exploration. 
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
+</details>
 
-# Operating Code
+<details>
+<summary>Operating Code</summary>
 
 All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
 
@@ -20,13 +22,6 @@ All necessary nodes, including the agent, are designed to start automatically up
 - On the UP board, run:
   
 `ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
-<details>
-<summary>Click to expand!</summary>
-
-This is the hidden content.
-
-</details>
-
 
 After the agent is running, reset the esp32 to let it automatically connect to the agent (You will hear all motors go "DUDU-DU DU DUUUUUU").
 
@@ -47,6 +42,7 @@ To send motor commands to the esp32 and control the ROV, run the following nodes
 To receive camera data (sending Image messages as a ros2 topic):
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
 
+</details>
 
 ## Preliminary Software Configuration
 
