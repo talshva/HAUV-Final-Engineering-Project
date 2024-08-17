@@ -176,6 +176,21 @@ or simply download and install mobaxterm for better user experience..
 </details>
 
 <details>
+<summary>Running Rviz2 Simulation</summary>
+
+- Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
+if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
+- Check that the motor_data can be seen. If not, check again for ROS_DOMAIN_ID matching.
+- Copy the rov_sim_pkg to rov_ws on the UP board.
+- build using `colcon build`
+- run `ros2 launch rov_sim_pkg rov.launch.py`
+- running joystick node using `ros2 run joy joy_node`
+- start playing.
+Simulation Example:  [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323)
+
+</details>
+
+<details>
 <summary>Timeline and Work Progress</summary>
 
 1. **Defining and Characterizing the Model**:
@@ -253,22 +268,6 @@ or simply download and install mobaxterm for better user experience..
 
 
 </details>
-
-<details>
-<summary>Running Rviz2 Simulation</summary>
-
-- Make sure that the service is up and running, and the guidance node is publishing the motor_data topic.
-if not, start the node manually using `ros2 run autopilot_pkg guidance_node`
-- Check that the motor_data can be seen. If not, check again for ROS_DOMAIN_ID matching.
-- Copy the rov_sim_pkg to rov_ws on the UP board.
-- build using `colcon build`
-- run `ros2 launch rov_sim_pkg rov.launch.py`
-- running joystick node using `ros2 run joy joy_node`
-- start playing.
-Simulation Example:  [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/062ddd23-0c9b-471f-b78c-63565cd50323)
-
-</details>
-
 
 ## Acknowledgments
 
