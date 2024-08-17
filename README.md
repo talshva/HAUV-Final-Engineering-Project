@@ -5,7 +5,7 @@
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
 <details>
-<summary>**Operating Code**</summary>
+##<summary>Operating Code</summary>
 
 All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
 
