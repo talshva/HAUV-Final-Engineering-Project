@@ -87,6 +87,15 @@ Below is the system flowchart:
 
 ## For manual operation:
 
+
+Before proceeding, ensure the following:
+
+- Set your computer's IP address to `192.168.168.100`.
+>Note: The UP board is configured with IP `192.168.168.101`.
+>Note: The Doppler Velocity Logger (DVL) is set to IP `192.168.168.102`, as configured here:
+[DVL settings](https://github.com/user-attachments/assets/a2fb2aa6-8320-4a41-9a43-7b12541674ba)
+
+
 ### Running the agent:
 - Make sure that the esp32 is connected to the UP Board using the micro-usb cable.
 - On the UP board, run:
