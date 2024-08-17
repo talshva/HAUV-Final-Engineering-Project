@@ -8,10 +8,6 @@ Equipped with advanced navigation systems and a suite of sensors, HAUV serves as
 <details>
 <summary>Prerequisites</summary>
 
-### On UP Board (Main PC)
-
-
-
 ### On ESP32 (RT MCU)
 
 1. **Micro-ROS-Arduino Setup**: Install the micro-ROS library for Arduino on the ESP32 to enable ROS2 communication.
@@ -20,8 +16,10 @@ You can find the latest version for micro-ros-arduino-foxy in the releases tab a
 
 https://github.com](https://github.com/micro-ROS/micro_ros_arduino
 
+### On UP Board (Main PC)
+
 1. **ROS2 Foxy Installation**: Follow the official ROS2 documentation to install ROS2 Foxy on Ubuntu 20.04 running on the UP board (for ubuntu 22.04 install the supported ROS2 Humble instead).
-2. **Clone this repo**: use:
+2. **Clone this repository using:**
 
 `git clone git@github.com:talshva/HAUV-Final-Engineering-Project.git` 
 
@@ -29,10 +27,12 @@ to download the workspace into the UP boards.
 
 3. **ROS Agent**: Install `micro-ros-agent` on the UP board to facilitate communication between ROS2 and micro-ROS on the ESP32.
 4. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over UART via SSH.
+   
 Don't forget to download the relevant libraries to the Arudino folder in the home directory of the UP board.
-> Another great alternative for Arduino CLI is PlatformIO.
+> Another great alternative is PlatformIO.
 
 ### Using the arduino CLI to flash the esp32:
+
 1. Go to main sketch directory:
    
 `cd ~/rov_ws/src/esp_sketches/rov_esp_main`
@@ -77,7 +77,7 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 </details>
 
 <details>
-<summary>Operating Code</summary>
+<summary>Operational Code and Instructions</summary>
 
 All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
 
