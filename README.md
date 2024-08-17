@@ -79,7 +79,9 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 <details>
 <summary>Operational Code and Instructions</summary>
 
-All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
+All necessary nodes, including the agent, are designed to start automatically upon system boot. 
+
+--- Below is the system flowchart:
 
 ![System Flowchart](https://github.com/user-attachments/assets/70fa5e70-175d-4226-b3eb-0edac63af185)
 
