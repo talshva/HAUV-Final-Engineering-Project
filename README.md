@@ -35,7 +35,6 @@ To receive camera data (sending Image messages as a ros2 topic):
 - **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
 
 
-
 ## Software Configuration
 
 ### On UP Board (Main PC)
@@ -99,7 +98,12 @@ if screen isn't terminating, kill manually by:
 
 
 
+
 ## Hardware
+
+![Components](https://github.com/user-attachments/assets/38843e3d-361e-4e97-9a5d-140aa9777527)
+
+
 ![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/8492f26f-86e4-493d-8b80-7392e1fb8db5)
 
 ### Block Diagram Description
@@ -117,7 +121,6 @@ The hardware setup of HAUV includes an array of sensors, propulsion systems, com
 
 - Thrusters, lights, and pan-tilt servo receive control signals from the ESP32 WROOM, which is interfaced with the main PC via serial communication.
 - The ESP32 is also responsible for low-level sensor readings and actuator controls.
-
 
 ## Timeline and Work Progress
 
