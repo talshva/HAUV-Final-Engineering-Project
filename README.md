@@ -3,14 +3,17 @@
 ![HAUV Logo](https://github.com/user-attachments/assets/c04aa1a3-2150-4c63-8d7c-6ad1716fded0)
 
 
-**HAUV** is a compact underwater vehicle designed to enhance underwater exploration and object retrieval. 
+**HAUV** is a compact underwater vehicle designed to enhance underwater exploration. 
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
-
 
 
 ## Operating Code
 
-In general, all nessessary nodes (including the agent) should be automaticaly run on startup. For manual operation:
+All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
+
+![System Flowchart](https://github.com/user-attachments/assets/70fa5e70-175d-4226-b3eb-0edac63af185)
+
+For manual operation:
 
 ### Running the agent:
 On the UP board, run:
