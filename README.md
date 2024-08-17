@@ -222,17 +222,16 @@ or simply download and install mobaxterm for better user experience..
    Wiring the Model: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
 
 
-9. **Stabilizing the HAUV**:
+8. **Stabilizing the HAUV**:
 
    The next goal was to stabilize the HAUV without any unwanted rotation. I attempted to calculate counterforces based on MPU6050 gyro and acceleration data but encountered noise issues.
    I then switched to using the BNO055 for its fused data capabilities.
 
-    
    Using the mpu6050: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)
    
    Using the bno055: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
 
-10. **Integrating the Pathfinder OEM DVL**:
+9. **Integrating the Pathfinder OEM DVL**:
 
    To address x, y, and z velocities, I integrated the Pathfinder OEM DVL by Teledyne. After wiring the DVL for power and communication, I configured, calibrated, and received its data over the Ethernet protocol. 
    Initial tests showed promising accuracy in mm resolution for x and y coordinates.
@@ -245,7 +244,7 @@ or simply download and install mobaxterm for better user experience..
 
    Test Results: [link](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
 
-11. **Final Overall Test**:
+10. **Final Overall Test**:
 
    The final overall test involved checking the self-control mode, switching to autonomous mode, and verifying the BNO055 compensation for yaw, pitch, and roll, and the DVL compensation for x, y, and z movements.  
    
