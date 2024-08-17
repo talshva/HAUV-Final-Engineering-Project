@@ -215,12 +215,7 @@ or simply download and install mobaxterm for better user experience..
    This was followed by designing a more representative model in SolidWorks, ensuring all motors were located in the desired positions.
    I used aluminum profiles found in the lab, and built a SolidWorks model, which was then constructed in the lab.
 
-   [SolidWorks Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01)
-
-   <a href="https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01">SolidWorks Model</a>
-
-
-   [SolidWorks Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01?raw=true)
+   [    SolidWorks Model    ](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01)
 
    [Bringing The Model to life](<https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/c2f5511f-dc08-4e59-a307-5f374cd1c080>)
 
@@ -231,10 +226,11 @@ or simply download and install mobaxterm for better user experience..
 
    The next goal was to stabilize the HAUV without any unwanted rotation. I attempted to calculate counterforces based on MPU6050 gyro and acceleration data but encountered noise issues.
    I then switched to using the BNO055 for its fused data capabilities.
+
     
-   ![Using the mpu6050](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)
+   [Using the mpu6050](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)
    
-   ![Using the bno055](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
+   [Using the bno055](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
 
 10. **Integrating the Pathfinder OEM DVL**:
 
