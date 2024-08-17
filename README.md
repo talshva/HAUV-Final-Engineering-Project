@@ -4,41 +4,6 @@
 **HAUV** is a compact underwater vehicle designed to enhance underwater exploration. 
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
-<details>
-<summary>Operating Code</summary>
-
-All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
-
-![System Flowchart](https://github.com/user-attachments/assets/70fa5e70-175d-4226-b3eb-0edac63af185)
-
-## For manual operation:
-
-### Running the agent:
-- Make sure that the esp32 is connected to the UP Board using the micro-usb cable.
-- On the UP board, run:
-  
-`ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
-
-After the agent is running, reset the esp32 to let it automatically connect to the agent (You will hear all motors go "DUDU-DU DU DUUUUUU").
-
-### ROS2 Nodes on UP Board
-After successfully connecting to the agent, the esp32 should publish sensor data. 
-To check the data validity, use `ros2 topic echo /esp32/<name-of-sensor-topic>`.
-To send motor commands to the esp32 and control the ROV, run the following nodes:
-- **Guidance Node**: Handles vehicle navigation and control. (`ros2 run autopilot guidance_node`).
-- **DVL Node**: received ethernet DVL data and publish commands on `/dvl/velocity_data` topic (`ros2 run autopilot dvl_node`).
-- **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic (`ros2 run joy joy_node`).
-
--note: 
-      Make sure that the DVL is configured to ping and send data on startup. If not, use the Teledyne Tool to send a `CS` command on the desired port.
-      To send commands to the DVL using the TRDI Toolz, connect to 192.168.168.102 with port 1033. The DVL is configured to send binary data to port 1034, and string data to port 1037 (Can be configured in 192.168.168.102 on a web             browser).
-      Make sure that the user settings are loaded with `CR` command before start pinging with the CS command. For more help type `?` in the Tool's Terminal, or look in in the datasheets.
-
-
-To receive camera data (sending Image messages as a ros2 topic):
-- **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
-
-</details>
 
 <details>
 <summary>Preliminary Software Configuration</summary>
@@ -77,6 +42,68 @@ if upload failed, check that the USB port is not used by something else.
 </details>
 
 <details>
+<summary>Hardware</summary>
+
+![Components](https://github.com/user-attachments/assets/38843e3d-361e-4e97-9a5d-140aa9777527)
+
+
+![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/8492f26f-86e4-493d-8b80-7392e1fb8db5)
+
+### Block Diagram Description
+
+The hardware setup of HAUV includes an array of sensors, propulsion systems, communication interfaces, and a control unit. The system diagram illustrates the following components:
+
+- **Main PC (UP Board)**: Acts as the central processing unit, running ROS2 for sensor data processing and system integration.
+- **RT MCU (ESP32 WROOM)**: Real-time microcontroller for managing lower-level controls and communication.
+- **Sensors**: 9-dof IMU (BNO055), Depth & Pressure (BAR100), Temperature & Humidity (BME280), and DVL for precise navigation and environmental monitoring.
+- **Propulsion**: 6x Blue Robotics Thrusters controlled by the ESP32 through PWM signals.
+- **Camera System**: Provides visual feedback for navigation and object detection.
+- **Lights**: Ensures visibility in underwater environments.
+
+### Connection Overview
+
+- Thrusters, lights, and pan-tilt servo receive control signals from the ESP32 WROOM, which is interfaced with the main PC via serial communication.
+- The ESP32 is also responsible for low-level sensor readings and actuator controls.
+
+</details>
+
+<details>
+<summary>Operating Code</summary>
+
+All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
+
+![System Flowchart](https://github.com/user-attachments/assets/70fa5e70-175d-4226-b3eb-0edac63af185)
+
+## For manual operation:
+
+### Running the agent:
+- Make sure that the esp32 is connected to the UP Board using the micro-usb cable.
+- On the UP board, run:
+  
+`ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
+
+After the agent is running, reset the esp32 to let it automatically connect to the agent (You will hear all motors go "DUDU-DU DU DUUUUUU").
+
+### ROS2 Nodes on UP Board
+After successfully connecting to the agent, the esp32 should publish sensor data. 
+To check the data validity, use `ros2 topic echo /esp32/<name-of-sensor-topic>`.
+To send motor commands to the esp32 and control the ROV, run the following nodes:
+- **Guidance Node**: Handles vehicle navigation and control. (`ros2 run autopilot guidance_node`).
+- **DVL Node**: received ethernet DVL data and publish commands on `/dvl/velocity_data` topic (`ros2 run autopilot dvl_node`).
+- **Joystick Node**: Automatically detects the joystick and publish commands on `/joy` topic (`ros2 run joy joy_node`).
+
+-note: 
+      Make sure that the DVL is configured to ping and send data on startup. If not, use the Teledyne Tool to send a `CS` command on the desired port.
+      To send commands to the DVL using the TRDI Toolz, connect to 192.168.168.102 with port 1033. The DVL is configured to send binary data to port 1034, and string data to port 1037 (Can be configured in 192.168.168.102 on a web             browser).
+      Make sure that the user settings are loaded with `CR` command before start pinging with the CS command. For more help type `?` in the Tool's Terminal, or look in in the datasheets.
+
+
+To receive camera data (sending Image messages as a ros2 topic):
+- **Camera Node**: Manages the camera system for real-time video feedback (`ros2 run camera_pkg camera_node`);
+
+</details>
+
+<details>
 <summary>Troubleshooting and useful information </summary>
 
 ### Typical Commands for Troubleshooting
@@ -106,32 +133,6 @@ if screen isn't terminating, kill manually by:
 `ctrl+A, then press K`, or:
 `screen -ls` (to get the session id)
 `screen -XS <session-id> quit`
-
-</details>
-
-<details>
-<summary>Hardware</summary>
-
-![Components](https://github.com/user-attachments/assets/38843e3d-361e-4e97-9a5d-140aa9777527)
-
-
-![ROV Diagram](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/8492f26f-86e4-493d-8b80-7392e1fb8db5)
-
-### Block Diagram Description
-
-The hardware setup of HAUV includes an array of sensors, propulsion systems, communication interfaces, and a control unit. The system diagram illustrates the following components:
-
-- **Main PC (UP Board)**: Acts as the central processing unit, running ROS2 for sensor data processing and system integration.
-- **RT MCU (ESP32 WROOM)**: Real-time microcontroller for managing lower-level controls and communication.
-- **Sensors**: 9-dof IMU (BNO055), Depth & Pressure (BAR100), Temperature & Humidity (BME280), and DVL for precise navigation and environmental monitoring.
-- **Propulsion**: 6x Blue Robotics Thrusters controlled by the ESP32 through PWM signals.
-- **Camera System**: Provides visual feedback for navigation and object detection.
-- **Lights**: Ensures visibility in underwater environments.
-
-### Connection Overview
-
-- Thrusters, lights, and pan-tilt servo receive control signals from the ESP32 WROOM, which is interfaced with the main PC via serial communication.
-- The ESP32 is also responsible for low-level sensor readings and actuator controls.
 
 </details>
 
