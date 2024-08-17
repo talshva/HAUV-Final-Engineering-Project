@@ -138,7 +138,7 @@ publishs motors and lights commands on `/motor_data and` `/lights_servo_data` to
 </details>
 
 <details>
-<summary>Troubleshooting and useful information </summary>
+<summary>Useful information and Troubleshooting</summary>
 
 ### DVL
 
