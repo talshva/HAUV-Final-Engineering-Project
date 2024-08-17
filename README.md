@@ -215,7 +215,8 @@ or simply download and install mobaxterm for better user experience..
    This was followed by designing a more representative model in SolidWorks, ensuring all motors were located in the desired positions.
    I used aluminum profiles found in the lab, and built a SolidWorks model, which was then constructed in the lab.
 
-   [Building The Model In SolidWorks](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01)
+
+   [Building The Model In SolidWorks](https://github.com/user-attachments/assets/f33af1ed-94bf-40d4-8692-95925d5657e5)
 
    [Bringing The Model to life](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/c2f5511f-dc08-4e59-a307-5f374cd1c080)
 
