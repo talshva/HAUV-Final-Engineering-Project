@@ -145,11 +145,11 @@ publishs motors and lights commands on `/motor_data and` `/lights_servo_data` to
 ```bash
 ros2 topic list
 ros2 topic echo /name_of_topic
-
+ros2 topic hz /name_of_topic
 ```
 ### Automatic Startup Implementation
-In general, we ideally prefer to run all nodes on UP startup, using a system service.
-These are some troubleshooting commands for the service:
+All nodes in this projects are running on UP startup, using a system service.
+These are some troubleshooting commands for observing the running service:
 ``` bash
 sudo systemctl daemon-reload
 sudo systemctl start rov_nodes.service
@@ -168,66 +168,86 @@ if screen isn't terminating, kill manually by:
 `screen -ls` (to get the session id)
 `screen -XS <session-id> quit`
 
+or simply download and install mobaxterm for better user experience..
+
 </details>
 
 <details>
 <summary>Timeline and Work Progress</summary>
 
-1. **Defining and Characterizing the Model**: The initial step was to define and characterize the model. This involved determining the necessary sensors and the conditions in which the HAUV would operate, including depth, speed, and environment.
+1. **Defining and Characterizing the Model**:
 
-2. **Choosing the MCU**: To ensure the UP board handled only high-level integration, I opted to use a real-time MCU for sensor data readout and motor control. After comparing various MCUs, including the STM32 Nucleo, I chose the ESP32 due to its extensive libraries, robust community support, and numerous PWM output pins.
+The initial step was to define and characterize the model. This involved determining the necessary sensors and the conditions in which the HAUV would operate, including depth, speed, and environment.
 
-3. **Setting Up the Software Framework**: Next, I set up the software framework. This included installing Ubuntu 20.04 (Jammy), ROS2 Foxy, Arduino CLI, and micro-ros-agent. I then flashed the ESP32 with micro-ros-arduino and set up a basic publisher-subscriber example code over serial communication.  
-   ![image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/83639ce9-3ba4-4aba-ab67-78f8ffdfe51a)
+2. **Choosing the MCU**:
 
-4. **Connecting Components and Verifying PWM Operation**: I proceeded to connect the T200 motors, lights, and a servo to the ESP32 PWM outputs. I sent publish commands from the UP board to verify the operation of multiple PWMs simultaneously, while also checking the ROS framework.  
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/980f8fde-eba6-4f22-a2f8-1a80e6792300)
+To ensure the UP board handled only high-level integration, I opted to use a real-time MCU for sensor data readout and motor control. After comparing various MCUs, including the STM32 Nucleo, I chose the ESP32 due to its extensive libraries, robust community support, and numerous PWM output pins.
 
-5. **Integrating the MPU6050**: Subsequently, I integrated the MPU6050 to measure the HAUV's gyro/acceleration data and compensate accordingly. I simulated the ROV movement using motor speeds and MPU acceleration values to calculate yaw, pitch, and roll.  
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4f9a05bb-01a2-4b5e-82c6-5f0618d48bf6)
+3. **Setting Up the Software Framework**:
 
-6. **First Physical Setup**: My first physical setup involved attaching four motors and one vertical motor to a wooden plate to check all directional controls.  
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/550c35b5-7a5b-4ee3-b198-ca422e674704)
+Next, I set up the software framework. This included installing Ubuntu 20.04 (Jammy), ROS2 Foxy, Arduino CLI, and micro-ros-agent. I then flashed the ESP32 with micro-ros-arduino and set up a basic publisher-subscriber example code over serial communication.  
+   [Image 1](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/83639ce9-3ba4-4aba-ab67-78f8ffdfe51a)
 
-7. **Designing a More Representative Model**: This was followed by designing a more representative model in SolidWorks, ensuring all motors were located in the desired positions. I used aluminum profiles found in the lab, and built a SolidWorks model, which was then constructed in the lab.
-8.
+4. **Connecting Components and Verifying PWM Operation**:
+
+I proceeded to connect the T200 motors, lights, and a servo to the ESP32 PWM outputs. I sent publish commands from the UP board to verify the operation of multiple PWMs simultaneously, while also checking the ROS framework.  
+   [Video1](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/980f8fde-eba6-4f22-a2f8-1a80e6792300)
+
+5. **Integrating the MPU6050**:
+
+Subsequently, I integrated the MPU6050 to measure the HAUV's gyro/acceleration data and compensate accordingly. I simulated the ROV movement using motor speeds and MPU acceleration values to calculate yaw, pitch, and roll.  
+   [Video2](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/4f9a05bb-01a2-4b5e-82c6-5f0618d48bf6)
+
+6. **First Physical Setup**:
+
+My first physical setup involved attaching four motors and one vertical motor to a wooden plate to check all directional controls.  
+   [Video3](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/550c35b5-7a5b-4ee3-b198-ca422e674704)
+
+7. **Designing a More Representative Model**:
+
+This was followed by designing a more representative model in SolidWorks, ensuring all motors were located in the desired positions. I used aluminum profiles found in the lab, and built a SolidWorks model, which was then constructed in the lab.
 
    https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/6fc3f76a-386f-4c2c-b053-d802bc5e5e01
   
-  ![Bulding the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/c2f5511f-dc08-4e59-a307-5f374cd1c080)
-   ![Wiring the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
+  [Bulding the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/c2f5511f-dc08-4e59-a307-5f374cd1c080)
+  [Wiring the Model](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/98da028a-8ae3-42d4-87f7-94673a4631b2)
 
-10. **Stabilizing the HAUV**: The next goal was to stabilize the HAUV without any unwanted rotation. I attempted to calculate counterforces based on MPU6050 gyro and acceleration data but encountered noise issues. I then switched to using the BNO055 for its fused data capabilities.
+8. **Stabilizing the HAUV**:
+
+The next goal was to stabilize the HAUV without any unwanted rotation. I attempted to calculate counterforces based on MPU6050 gyro and acceleration data but encountered noise issues. I then switched to using the BNO055 for its fused data capabilities.
     Using the mpu6050:
     
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)
+   [video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/82a6e954-5ed4-43ee-b376-077be81b91f1)
 
    Overall test with the bno055:
    
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
+   [video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b1dcd281-737d-478e-b8a2-e48cd91a614e)
 
-12. **Integrating the Pathfinder OEM DVL**: To address x, y, and z velocities, I integrated the Pathfinder OEM DVL by Teledyne. After wiring the DVL for power and communication, I configured, calibrated, and received its data over the Ethernet protocol. Initial tests showed promising accuracy in mm resolution for x and y coordinates.
+9. **Integrating the Pathfinder OEM DVL**:
+
+To address x, y, and z velocities, I integrated the Pathfinder OEM DVL by Teledyne. After wiring the DVL for power and communication, I configured, calibrated, and received its data over the Ethernet protocol. Initial tests showed promising accuracy in mm resolution for x and y coordinates.
     
-   ![image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b4049c02-31d9-4bf4-a882-99dd7b1478cd)  
+   [image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/b4049c02-31d9-4bf4-a882-99dd7b1478cd)  
 
    DVL Depth Test using a bucket:
 
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/59ab2e93-2b21-4b62-8523-20c145469a1e)  
+   [video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/59ab2e93-2b21-4b62-8523-20c145469a1e)  
 
    DVL Real-time Location Test:
 
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/039a02d6-3f1c-48c4-8025-09734b80c4e4)  
+   [video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/039a02d6-3f1c-48c4-8025-09734b80c4e4)  
 
    Test Results:
 
-   ![image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
+   [image](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/70ba83be-acbd-4e48-92b7-cc2e006fbb0e)
 
-14. **Final Overall Test**: The final overall test involved checking the self-control mode, switching to autonomous mode, and verifying the BNO055 compensation for yaw, pitch, and roll, and the DVL compensation for x, y, and z movements.  
+10. **Final Overall Test**:
 
-   ![video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
-
-
-![tests+cam](https://github.com/user-attachments/assets/a61eaffa-4ed9-42ba-8984-1a3d4e673387)
+   The final overall test involved checking the self-control mode, switching to autonomous mode, and verifying the BNO055 compensation for yaw, pitch, and roll, and the DVL compensation for x, y, and z movements.  
+   
+   [video](https://github.com/talshva/HAUV-Final-Engineering-Project/assets/82408347/ec95252b-0728-4c9e-8f26-35af209ef355)
+   
+   [tests+cam](https://github.com/user-attachments/assets/a61eaffa-4ed9-42ba-8984-1a3d4e673387)
 
 </details>
 
