@@ -15,9 +15,7 @@ See the final project report [here](https://github.com/user-attachments/files/16
 
 1. **Micro-ROS-Arduino Setup**: Install the micro-ROS library for Arduino on the ESP32 to enable ROS2 communication.
 
-You can find the latest version for micro-ros-arduino-foxy in the releases tab at:
-
-https://github.com](https://github.com/micro-ROS/micro_ros_arduino
+You can find the latest version for micro-ros-arduino-foxy in the releases tab [here](https://github.com/micro-ROS/micro_ros_arduino)
 
 ### On UP Board (Main PC)
 
