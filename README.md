@@ -7,18 +7,21 @@
 Equipped with advanced navigation systems and a suite of sensors, HAUV serves as an essential tool for pre-diving operations, marking objects of interest, and streamlining processes for divers, thereby increasing operational efficiency and safety.
 
 
-## Operating Code
+# Operating Code
 
 All necessary nodes, including the agent, are designed to start automatically upon system boot. Below is the system flowchart:
 
 ![System Flowchart](https://github.com/user-attachments/assets/70fa5e70-175d-4226-b3eb-0edac63af185)
 
-For manual operation:
+## For manual operation:
 
 ### Running the agent:
-On the UP board, run:
+- Make sure that the esp32 is connected to the UP Board using the micro-usb cable.
+- On the UP board, run:
+  
 `ros2 run micro_ros_agent micro_ros_agent serial -b 115200 --dev /dev/ttyUSB0`
-after the agent is running, reset the esp32 to let it automatically connect to the agent.
+
+After the agent is running, reset the esp32 to let it automatically connect to the agent (You will hear all motors go "DUDU-DU DU DUUUUUU").
 
 ### ROS2 Nodes on UP Board
 After successfully connecting to the agent, the esp32 should publish sensor data. 
