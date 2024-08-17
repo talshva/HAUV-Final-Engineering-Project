@@ -10,19 +10,27 @@ Equipped with advanced navigation systems and a suite of sensors, HAUV serves as
 
 ### On UP Board (Main PC)
 
-1. **ROS2 Foxy Installation**: Follow the official ROS2 documentation to install ROS2 Foxy on Ubuntu 20.04 running on the UP board (for ubuntu 22.04 install the supported ROS2 Humble instead).
-2. **ROS Agent**: Install `micro-ros-agent` on the UP board to facilitate communication between ROS2 and micro-ROS on the ESP32.
+
 
 ### On ESP32 (RT MCU)
 
 1. **Micro-ROS-Arduino Setup**: Install the micro-ROS library for Arduino on the ESP32 to enable ROS2 communication.
-[GitHub]([https://github.com](https://github.com/micro-ROS/micro_ros_arduino))
 
-You can find the latest version for micro-ros-arduino-foxy in the releases tab.
+You can find the latest version for micro-ros-arduino-foxy in the releases tab at:
 
-3. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over UART via SSH.
+https://github.com](https://github.com/micro-ROS/micro_ros_arduino
+
+1. **ROS2 Foxy Installation**: Follow the official ROS2 documentation to install ROS2 Foxy on Ubuntu 20.04 running on the UP board (for ubuntu 22.04 install the supported ROS2 Humble instead).
+2. **Clone this repo**: use:
+
+`git clone git@github.com:talshva/HAUV-Final-Engineering-Project.git` 
+
+to download the workspace into the UP boards.
+
+3. **ROS Agent**: Install `micro-ros-agent` on the UP board to facilitate communication between ROS2 and micro-ROS on the ESP32.
+4. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over UART via SSH.
 Don't forget to download the relevant libraries to the Arudino folder in the home directory of the UP board.
-
+> Another great alternative for Arduino CLI is PlatformIO.
 
 ### Using the arduino CLI to flash the esp32:
 1. Go to main sketch directory:
