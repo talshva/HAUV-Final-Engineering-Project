@@ -6,17 +6,18 @@ Equipped with advanced navigation systems and a suite of sensors, HAUV serves as
 
 
 <details>
-<summary>Preliminary Software Configuration</summary>
+<summary>Prerequisites</summary>
 
 ### On UP Board (Main PC)
 
-1. **ROS2 Foxy Installation**: Follow the official ROS2 documentation to install ROS2 Foxy on Ubuntu running on the UP board.
+1. **ROS2 Foxy Installation**: Follow the official ROS2 documentation to install ROS2 Foxy on Ubuntu 20.04 running on the UP board (for ubuntu 22.04 install the supported ROS2 Humble instead).
 2. **ROS Agent**: Install `micro-ros-agent` on the UP board to facilitate communication between ROS2 and micro-ROS on the ESP32.
 
 ### On ESP32 (RT MCU)
 
 1. **Micro-ROS-Arduino Setup**: Install the micro-ROS library for Arduino on the ESP32 to enable ROS2 communication.
-https://github.com/micro-ROS/micro_ros_arduino
+[GitHub]([https://github.com](https://github.com/micro-ROS/micro_ros_arduino))
+
 You can find the latest version for micro-ros-arduino-foxy in the releases tab.
 
 3. **Arduino CLI**: Install the Arduino CLI on the UP board to allow code editing, compilation, and flashing of the ESP32 over UART via SSH.
