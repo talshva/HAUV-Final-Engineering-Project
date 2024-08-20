@@ -169,8 +169,8 @@ class GuidanceNode(Node):
         yaw_error = self.angle_wrap(target_yaw_rad - current_yaw_rad)
         pitch_error = self.angle_wrap(target_pitch_rad - current_pitch_rad)
 
-        yaw_adjustment = int((400/(15*math.pi)) * self.kp_yaw * yaw_error + self.kd_yaw * current_yaw_rad)
-        pitch_adjustment = int((400/(15*math.pi)) * self.kp_pitch * pitch_error + self.kd_pitch * current_pitch_rad)
+        yaw_adjustment = int((400/(15*math.pi)) * self.kp_yaw * yaw_error)# + self.kd_yaw * current_yaw_rad)
+        pitch_adjustment = int((400/(15*math.pi)) * self.kp_pitch * pitch_error)# + self.kd_pitch * current_pitch_rad)
 
         # self.get_logger().info(f"yaw_error: {yaw_error}")
         # self.get_logger().info(f"yaw_adjustment: {yaw_adjustment}")
