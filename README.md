@@ -269,6 +269,27 @@ Simulation Example:  [link](https://github.com/talshva/HAUV-Final-Engineering-Pr
 
 </details>
 
+
+<details>
+<summary>Future Implementation</summary>
+
+**Hardware:**
+- Integrate a pair of USBL (Ultra-Short Baseline) systems for enhanced position correction, with one mounted on the upper station and the other on the HAUV.
+- Explore cost-effective alternatives to the current DVL (Doppler Velocity Log) for more budget-friendly operations.
+- Replace the serial camera with an Ethernet camera to connect to the Ethernet switch, aiming for higher frame rates and reduced latency.
+- Incorporate a small square monitor dedicated to error debugging for more efficient troubleshooting.
+
+**Software:**
+- Fine-tune the control loop parameters after conducting real-world underwater experiments to optimize performance.
+- Implement support for communication with the QGroundControl GUI through the gqc_node, similar to the integration in the Tiger system.
+- Enhance the live_node in ROS2 to include real-time checks and notifications if certain topics have not published data for a specified duration.
+- Simulate an underwater environment using Gazebo to test and refine the HAUV's operations.
+- Add a watchdog mechanism on the ESP32 to detect and alert when sensors are disconnected or malfunctioning.
+- Investigate if the DVL can provide additional useful data, such as yaw, pitch, roll values, leak detection, and altitude measurements.
+
+</details>
+
+   
 ## Acknowledgments
 
 - Prof. Hugo Guterman, project advisor.
